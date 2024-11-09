@@ -1,0 +1,29 @@
+---
+# tasks file for caddy
+
+- name: Install caddy and rsync
+  become: true
+  ansible.builtin.apt:
+    name:
+      - caddy
+      - rsync
+
+- name: Copy Caddyfile
+  become: true
+  ansible.builtin.copy:
+    src: Caddyfile
+    dest: "{{ caddypath }}"
+    owner: root
+    group: root
+    mode: '0644'
+
+#- name: Copy Audio italien
+#  ansible.posix.synchronize:
+#    src: italien/
+#    dest: /var/www/italien/
+#    rsync_opts:
+#      - "--chmod=F644"
+#    rsync_path: "sudo rsync"
+
+- name: Reload Caddy
+  ansible.builtin.command: caddy adapt --config {{ caddypath }}

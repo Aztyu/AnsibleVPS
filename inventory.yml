@@ -1,0 +1,5 @@
+serveurs:
+  hosts:
+    vps:
+      ansible_host: 192.168.100.90
+      ansible_ssh_user: ansible

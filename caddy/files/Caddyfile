@@ -1,0 +1,8 @@
+corentinbe.al:80 {
+	root * /var/www/italien
+	file_server
+}
+
+transmission.corentinbe.al:80 {
+  reverse_proxy localhost:9091
+}
