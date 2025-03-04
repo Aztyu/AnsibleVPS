@@ -1,13 +1,39 @@
 ---
 - name: Intro to Ansible Playbooks
   hosts: all
-
-  tasks:
+  vars:
+    state: latest
+    user: cloud
+    group: media
+  pre_tasks:
+  - name: Ensure group "{{ group }}" exists
+    ansible.builtin.group:
+      name: "{{ group }}"
+      state: present
+  - name: Add the user {{ user }}
+    ansible.builtin.user:
+      name: "{{ user }}"
+      group: "{{ group }}"
+      create_home: yes
+  - name: Deactivate password auth
+    ansible.builtin.replace:
+      path: /etc/ssh/sshd_config
+      regexp: '#PasswordAuthentication yes'
+      replace: 'PasswordAuthentication no'
+  - name: Reload service ssh
+    ansible.builtin.systemd_service:
+      name: sshd.service
+      state: reloaded
   - name: Upgrade all apt packages
     apt:
       force_apt_get: yes
       upgrade: dist
     become: yes
 
+  vars_files:
+    - "vault/secrets.yml"
+
   roles:
-    - caddy
+    - {role: 'caddy', tags: 'done'}
+    - {role: 'immich', tags: 'immich'}
+    - {role: 'jellyfin', tags: 'dev'}

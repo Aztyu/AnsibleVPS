@@ -1,0 +1,8 @@
+# /etc/systemd/system/mnt-storagebox.mount
+[Unit]
+Description=Mount for /mnt/storagebox
+[Mount]
+Type=rclone
+What=storagebox:
+Where=/mnt/storagebox
+Options=rw,_netdev,allow_other,args2env,config=/root/.config/rclone/rclone.conf

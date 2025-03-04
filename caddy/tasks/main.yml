@@ -1,12 +1,41 @@
 ---
 # tasks file for caddy
 
-- name: Install caddy and rsync
-  become: true
-  ansible.builtin.apt:
+- name: Install required packages
+  apt:
+    update_cache: yes
     name:
-      - caddy
-      - rsync
+      - debian-keyring
+      - debian-archive-keyring
+      - apt-transport-https
+    state: present
+
+- name: Add Cloudsmith repository
+  apt_key:
+    url: "https://dl.cloudsmith.io/public/caddy/stable/gpg.key"
+    state: present
+
+- name: Add Caddy repository to sources list
+  apt_repository:
+    repo:
+      "deb https://dl.cloudsmith.io/public/caddy/stable/deb/debian
+      any-version main"
+    state: present
+    filename: caddy-stable
+
+- name: Add Caddy src repository to sources list
+  apt_repository:
+    repo:
+      "deb-src https://dl.cloudsmith.io/public/caddy/stable/deb/debian
+      any-version main"
+    state: present
+    filename: caddy-stable
+
+- name: Install Caddy
+  apt:
+    update_cache: yes
+    name: caddy
+    state: present
 
 - name: Copy Caddyfile
   become: true
@@ -26,4 +55,6 @@
 #    rsync_path: "sudo rsync"
 
 - name: Reload Caddy
-  ansible.builtin.command: caddy adapt --config {{ caddypath }}
+  ansible.builtin.systemd_service:
+    state: reloaded
+    name: caddy

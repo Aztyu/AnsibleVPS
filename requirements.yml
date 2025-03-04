@@ -1,2 +1,2 @@
-# Install the Caddy role
-- src: nvjacobo.caddy
+collections:
+- name: community.docker

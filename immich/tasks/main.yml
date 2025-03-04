@@ -1,0 +1,112 @@
+---
+# tasks file for caddy
+
+- name: Add Docker repository signature
+  apt_key:
+    url: "https://download.docker.com/linux/debian/gpg"
+    state: present
+
+- name: Add Docker repository to sources list
+  apt_repository:
+    repo:
+      "deb https://download.docker.com/linux/debian
+      bookworm stable"
+    state: present
+
+- name: Install required packages
+  apt:
+    update_cache: yes
+    name:
+      - docker-ce 
+      - docker-ce-cli 
+      - containerd.io 
+      - docker-buildx-plugin 
+      - docker-compose-plugin
+      - rclone
+      - fuse
+      - iptables-persistent
+    state: present
+
+# TODO bloquer les requêtes entrantes sur le port Immich depuis l'extérieur vers docker https://docs.docker.com/engine/network/packet-filtering-firewalls/
+# Check that it doesnt exist already
+- name: Add iptable rules to block request direct to Docker
+  shell: iptables -I DOCKER-USER -i eth0 ! -s 192.0.2.2 -p tcp --dport 2283 -j DROP
+
+- name: Save iptable
+  shell: iptables-save > /etc/iptables/rules.v4
+
+# Info rclone mount https://rclone.org/commands/rclone_mount/
+- name: Setup rclone config
+  become: true
+  ansible.builtin.template:
+    src: rclone.conf.j2
+    dest: "{{ rclone_conf_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create mount directory
+  ansible.builtin.file:
+    path: /mnt/storagebox
+    state: directory
+    mode: '0755'
+
+# Lien symbolique pour mount ln -s /usr/bin/rclone /sbin/mount.rclone
+- name: Create symbolic link for rclone
+  ansible.builtin.file:
+    src: /usr/bin/rclone
+    dest: /sbin/mount.rclone
+    owner: root
+    group: media
+    state: link
+
+# ajout mount
+- name: Copy mount file
+  become: true
+  ansible.builtin.copy:
+    src: mnt-storagebox.mount
+    dest: "{{ mount_file_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+
+# Start mount
+- name: Start storage mount
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Start mount service
+  ansible.builtin.systemd_service:
+    state: started
+    name: mnt-storagebox.mount
+
+# Copy docker files
+- name: Copy immich repo
+  become: true
+  ansible.builtin.copy:
+    src: immich/docker-compose.yml
+    dest: /root/docker/immich/docker-compose.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy Immich .env
+  become: true
+  ansible.builtin.template:
+    src: .env.j2
+    dest: /root/docker/immich/.env
+    owner: root
+    group: root
+    mode: '0644'
+
+# Start 
+- name: Create and start Immich via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: /root/docker/immich
+
+# Setup user http://157.90.144.213:2283/auth/register
+# {"email":"coco.bea@hotmail.fr","password":"**********","name":"Corentin"}
+# /api/auth/admin-sign-up
+
+# Immich https://immich.app/docs/administration/server-commands/
+

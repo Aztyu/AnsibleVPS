@@ -1,0 +1,166 @@
+---
+# tasks file for jellyfin
+
+- name: Create mnt media
+  ansible.builtin.file:
+    path: /mnt/storagebox/media
+    state: directory
+    mode: '0755'
+
+- name: Copy OpenVPN conf
+  become: true
+  ansible.builtin.copy:
+    src: AirVPN_Germany_UDP-443-Entry3.ovpn
+    dest: /root/transmission/openvpn/
+    owner: root
+    group: root
+    mode: '0644'
+
+# Copy docker files
+- name: Copy transmission repo
+  become: true
+  ansible.builtin.copy:
+    src: transmission
+    dest: /root/docker/
+    owner: root
+    group: root
+    mode: '0644'
+
+# Start 
+- name: Create and start transmission via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: /root/docker/transmission
+
+- name: Install extrepo
+  apt:
+    update_cache: yes
+    name:
+      - extrepo
+    state: present
+
+- name: Add Jellyfin repo
+  shell: extrepo enable jellyfin
+
+- name: Install jellyfin
+  apt:
+    update_cache: yes
+    name:
+      - jellyfin
+    state: present
+
+- name: Add iptable rules to block request direct to Jellyfin docker
+  shell: iptables -I DOCKER-USER -i eth0 ! -s 192.0.2.2 -p tcp --dport 8096 -j DROP
+
+- name: Save iptable
+  shell: iptables-save > /etc/iptables/rules.v4
+
+# Déplacer dans un role *arr
+# Setup Jackettt https://github.com/Jackett/Jackett
+
+# Jackettt cant be run as root
+
+- name: Unarchive Jackett
+  ansible.builtin.unarchive:
+    src: https://github.com/Jackett/Jackett/releases/download/v0.22.1310/Jackett.Binaries.LinuxARM64.tar.gz
+    dest: /home/cloud/
+    owner: cloud
+    group: media
+    remote_src: yes
+
+- name: Set permissions
+  command: chmod +x /home/cloud/Jackett/install_service_systemd.sh
+
+- name: Run bash script
+  command: /home/cloud/Jackett/install_service_systemd.sh
+
+# TODO check if we can fix if user/group need to be cloud
+- name: Fix script Jackett
+  ansible.builtin.replace:
+    path: /etc/systemd/system/jackett.service
+    regexp: 'Group=cloud'
+    replace: ''
+
+- name: Reload systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Start Jackett
+  ansible.builtin.systemd_service:
+    state: started
+    name: jackett.service
+
+- name: Set password Jackett
+  ansible.builtin.replace:
+    path: /etc/systemd/system/jackett.service
+    regexp: '"AdminPassword": null,'
+    replace: '"AdminPassword": "2a717252d0212e1d016b1d17f3215ca04d2899cc0134be6bacde91bba370bc2435f336235a1126079ab2f4be2a182154e6ffe600b610a111cd65209d5417593b",'
+
+# TODO ajouter les Indexers jacket format json
+
+- name: Download Sonarr
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/Sonarr/Sonarr/develop/distribution/debian/install.sh
+    dest: /home/cloud/
+    mode: '0644'
+
+- name: Set permissions
+  command: chmod +x /home/cloud/install.sh
+
+- name: Install pip
+  apt:
+    update_cache: yes
+    name:
+      - python3-pip
+      - python3-pexpect
+
+#- name: Run install
+#  ansible.builtin.expect:
+#    command: /home/cloud/install.sh
+#    responses:
+#      'What user should Sonarr run as? (Default: sonarr):': 'cloud'
+#      'What group should Sonarr run as? (Default: media):': 'media'
+#      'Press enter to continue or ctrl+c to exit...': ''
+
+# Installer Radarr
+
+# Pré-requis
+- name: Install SQLite
+  apt:
+    name:
+      - curl
+      - sqlite3
+    state: present
+
+- name: Create Radarr file
+  ansible.builtin.file:
+    path: /var/lib/radarr
+    owner: cloud
+    group: media
+    state: directory
+    mode: '0755'
+
+- name: Unarchive Radarr
+  ansible.builtin.unarchive:
+    src: http://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=arm64
+    dest: /opt/
+    owner: cloud
+    group: media
+    remote_src: yes
+
+- name: Copy Radarr.service
+  become: true
+  ansible.builtin.copy:
+    src: Radarr/radarr.service
+    dest: /etc/systemd/system/
+    owner: cloud
+    group: media
+    mode: '0644'
+
+- name: Reload systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Start Radarr
+  ansible.builtin.systemd_service:
+    state: started
+    name: radarr.service
