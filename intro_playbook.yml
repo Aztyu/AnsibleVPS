@@ -36,4 +36,5 @@
   roles:
     - {role: 'caddy', tags: 'done'}
     - {role: 'immich', tags: 'immich'}
-    - {role: 'jellyfin', tags: 'dev'}
+    - {role: 'jellyfin', tags: 'jellyfin'}
+    - {role: 'uptime', tags: 'uptime'}

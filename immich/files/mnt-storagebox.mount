@@ -5,4 +5,4 @@ Description=Mount for /mnt/storagebox
 Type=rclone
 What=storagebox:
 Where=/mnt/storagebox
-Options=rw,_netdev,allow_other,args2env,config=/root/.config/rclone/rclone.conf
+Options=rw,_netdev,allow_other,args2env,vfs-cache-mode=full,vfs-cache-max-age=72h,vfs-cache-max-size=5G,config=/root/.config/rclone/rclone.conf,cache-dir=/var/rclone

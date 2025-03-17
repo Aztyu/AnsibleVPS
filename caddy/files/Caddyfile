@@ -17,3 +17,7 @@ photo.corentinbeal.fr {
 jellyfin.corentinbeal.fr {
   reverse_proxy localhost:8096
 }
+
+status.corentinbeal.fr {
+  reverse_proxy localhost:3001
+}
