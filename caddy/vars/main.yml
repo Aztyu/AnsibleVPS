@@ -1,3 +1,17 @@
 ---
 # vars file for caddy
 caddypath: /etc/caddy/Caddyfile
+
+domain_name: corentinbeal.fr
+
+services:
+  transmission:
+    port: 9091
+    user: cloud
+    password: $2a$12$NwHWKoRbsQ7JK3dvl6epleHpc5UTotdJNeuKnN3WKIbU1i4rEyxES
+  photo:
+    port: 2283
+  jellyfin:
+    port: 8096
+  status:
+    port: 3001

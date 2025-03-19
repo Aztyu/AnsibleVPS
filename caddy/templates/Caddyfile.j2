@@ -1,0 +1,11 @@
+{% for subdomain in services -%}
+{{ subdomain }}.{{ domain_name }}:80 {
+{% if services[subdomain].user is defined %}
+  basic_auth {
+    {{ services[subdomain].user }} {{ services[subdomain].password }}
+  }
+{% endif %}
+  reverse_proxy localhost:{{ services[subdomain].port }}
+}
+
+{% endfor %}

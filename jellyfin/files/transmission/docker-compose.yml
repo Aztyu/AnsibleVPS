@@ -17,12 +17,6 @@ services:
           driver: json-file
           options:
               max-size: 10m
-      deploy:                   # Restart because the VPN fails sometime
-        restart_policy:
-          condition: on-failure
-          delay: 40s
-          max_attempts: 5
-          window: 60s
       ports:
           - '9091:9091'
       sysctls:

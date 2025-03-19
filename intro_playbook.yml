@@ -34,7 +34,7 @@
     - "vault/secrets.yml"
 
   roles:
-    - {role: 'caddy', tags: 'done'}
+    - {role: 'caddy', tags: 'caddy'}
     - {role: 'immich', tags: 'immich'}
     - {role: 'jellyfin', tags: 'jellyfin'}
     - {role: 'uptime', tags: 'uptime'}

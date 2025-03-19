@@ -37,10 +37,10 @@
     name: caddy
     state: present
 
-- name: Copy Caddyfile
+- name: Copy Caddyfile template
   become: true
-  ansible.builtin.copy:
-    src: Caddyfile
+  ansible.builtin.template:
+    src: Caddyfile.j2
     dest: "{{ caddypath }}"
     owner: root
     group: root
