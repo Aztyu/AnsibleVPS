@@ -48,12 +48,6 @@
       - jellyfin
     state: present
 
-- name: Add iptable rules to block request direct to Jellyfin docker
-  shell: iptables -I DOCKER-USER -i eth0 ! -s 192.0.2.2 -p tcp --dport 8096 -j DROP
-
-- name: Save iptable
-  shell: iptables-save > /etc/iptables/rules.v4
-
 # Déplacer dans un role *arr
 # Setup Jackettt https://github.com/Jackett/Jackett
 
