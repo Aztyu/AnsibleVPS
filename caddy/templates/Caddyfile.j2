@@ -1,5 +1,5 @@
 {% for subdomain in services -%}
-{{ subdomain }}.{{ domain_name }}:80 {
+{{ subdomain }}.{{ domain_name }}{% if services[subdomain].http is defined %}:80{% endif %} {
 {% if services[subdomain].user is defined %}
   basic_auth {
     {{ services[subdomain].user }} {{ services[subdomain].password }}

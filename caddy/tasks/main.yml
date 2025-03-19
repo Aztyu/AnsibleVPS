@@ -8,6 +8,7 @@
       - debian-keyring
       - debian-archive-keyring
       - apt-transport-https
+      - iptables-persistent # Used for iptables save
     state: present
 
 - name: Add Cloudsmith repository
@@ -46,15 +47,13 @@
     group: root
     mode: '0644'
 
-#- name: Copy Audio italien
-#  ansible.posix.synchronize:
-#    src: italien/
-#    dest: /var/www/italien/
-#    rsync_opts:
-#      - "--chmod=F644"
-#    rsync_path: "sudo rsync"
-
 - name: Reload Caddy
   ansible.builtin.systemd_service:
     state: reloaded
     name: caddy
+
+- name: Include task for each service
+  include_tasks: setup-iptables.yml
+  vars:
+    service_port: "{{ item.value.port }}"
+  with_dict: "{{ services }}"

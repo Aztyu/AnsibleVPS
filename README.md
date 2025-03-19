@@ -26,3 +26,5 @@ Récupérer les confs pour les mettre dans e playbook
 Gérer les droits avec RClone pour utiliser le user cloud:media
 
 VFS sans cache soucis si download de fichier > cache dispo
+
+Backup voir https://www.backblaze.com/docs/cloud-storage-configure-backblaze-b2-with-duplicity-on-linux

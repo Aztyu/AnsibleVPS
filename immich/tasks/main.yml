@@ -24,16 +24,7 @@
       - docker-compose-plugin
       - rclone
       - fuse
-      - iptables-persistent
     state: present
-
-# TODO bloquer les requêtes entrantes sur le port Immich depuis l'extérieur vers docker https://docs.docker.com/engine/network/packet-filtering-firewalls/
-# Check that it doesnt exist already
-- name: Add iptable rules to block request direct to Docker
-  shell: iptables -I DOCKER-USER -i eth0 ! -s 192.0.2.2 -p tcp --dport 2283 -j DROP
-
-- name: Save iptable
-  shell: iptables-save > /etc/iptables/rules.v4
 
 # Info rclone mount https://rclone.org/commands/rclone_mount/
 - name: Setup rclone config
