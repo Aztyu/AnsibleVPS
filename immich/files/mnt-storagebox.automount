@@ -1,0 +1,10 @@
+# /etc/systemd/system/mnt-data.automount
+[Unit]
+Description=AutoMount for /mnt/storagebox
+
+[Automount]
+Where=/mnt/storagebox
+TimeoutIdleSec=60
+
+[Install]
+WantedBy=multi-user.target

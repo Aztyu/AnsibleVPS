@@ -1,8 +1,10 @@
 # /etc/systemd/system/mnt-storagebox.mount
 [Unit]
 Description=Mount for /mnt/storagebox
+
 [Mount]
 Type=rclone
 What=storagebox:
 Where=/mnt/storagebox
-Options=rw,_netdev,allow_other,args2env,vfs-cache-mode=full,vfs-cache-max-age=72h,vfs-cache-max-size=5G,config=/root/.config/rclone/rclone.conf,cache-dir=/var/rclone
+# Sans le mode writes Immich ne démare pas "type d'écriture non supportée" 
+Options=rw,_netdev,allow_other,args2env,vfs-cache-mode=full,vfs-cache-max-size=5G,config=/root/.config/rclone/rclone.conf,cache-dir=/var/rclone,log-file=/var/log/rclone.log

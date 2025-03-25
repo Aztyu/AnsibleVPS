@@ -56,15 +56,29 @@
   become: true
   ansible.builtin.copy:
     src: mnt-storagebox.mount
-    dest: "{{ mount_file_path }}"
+    dest: "{{ mount_file_path }}mnt-storagebox.mount"
     owner: root
     group: root
     mode: '0644'
 
-# Start mount
-- name: Start storage mount
+# ajout mount
+- name: Copy mount file
+  become: true
+  ansible.builtin.copy:
+    src: mnt-storagebox.automount
+    dest: "{{ mount_file_path }}mnt-storagebox.automount"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Reload to systemd
   ansible.builtin.systemd_service:
     daemon_reload: true
+
+- name: Enable automount
+  ansible.builtin.systemd_service:
+    enabled: true
+    name: mnt-storagebox.automount
 
 - name: Start mount service
   ansible.builtin.systemd_service:
@@ -94,10 +108,3 @@
 - name: Create and start Immich via docker-compose
   community.docker.docker_compose_v2:
     project_src: /root/docker/immich
-
-# Setup user http://157.90.144.213:2283/auth/register
-# {"email":"coco.bea@hotmail.fr","password":"**********","name":"Corentin"}
-# /api/auth/admin-sign-up
-
-# Immich https://immich.app/docs/administration/server-commands/
-
