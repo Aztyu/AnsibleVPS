@@ -1,5 +1,5 @@
 ---
 # vars file for immich
 rclone_conf_path: /root/.config/rclone/
-mount_file_path: /etc/systemd/system/mnt-storagebox.mount
-immich_version: "v1.125.7"
+mount_file_path: /etc/systemd/system/
+immich_version: "v1.130.0"
