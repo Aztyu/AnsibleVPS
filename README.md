@@ -17,14 +17,8 @@ Launch playbook -> ansible-playbook intro_playbook.yml --vault-password-file=pas
 
 TODO
 
-Installer Tailscale -> Immich ML
-
-Sonarr ajout remote path
-Radar ajout remote path -> localhost | /data/ | /home/cloud/data/transmission/download/
-Récupérer les confs pour les mettre dans e playbook
-
-Gérer les droits avec RClone pour utiliser le user cloud:media
-
-VFS sans cache soucis si download de fichier > cache dispo
-
-Backup voir https://www.backblaze.com/docs/cloud-storage-configure-backblaze-b2-with-duplicity-on-linux
+- Récupérer les confs Radarr/Sonarr/Jackett pour les mettre dans le playbook
+- Backup voir https://www.backblaze.com/docs/cloud-storage-configure-backblaze-b2-with-duplicity-on-linux
+- Installer https://github.com/bonukai/MediaTracker?tab=readme-ov-file 
+- Brancher Uptime Kuma via mail
+- Voir pour un Fail2Ban
