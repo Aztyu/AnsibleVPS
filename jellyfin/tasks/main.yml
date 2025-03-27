@@ -48,14 +48,9 @@
       - jellyfin
     state: present
 
-# Déplacer dans un role *arr
-# Setup Jackettt https://github.com/Jackett/Jackett
-
-# Jackettt cant be run as root
-
 - name: Unarchive Jackett
   ansible.builtin.unarchive:
-    src: https://github.com/Jackett/Jackett/releases/download/v0.22.1310/Jackett.Binaries.LinuxARM64.tar.gz
+    src: https://github.com/Jackett/Jackett/releases/download/v0.22.1691/Jackett.Binaries.LinuxARM64.tar.gz
     dest: /home/cloud/
     owner: cloud
     group: media
@@ -88,6 +83,21 @@
     path: /etc/systemd/system/jackett.service
     regexp: '"AdminPassword": null,'
     replace: '"AdminPassword": "2a717252d0212e1d016b1d17f3215ca04d2899cc0134be6bacde91bba370bc2435f336235a1126079ab2f4be2a182154e6ffe600b610a111cd65209d5417593b",'
+
+
+- name: Copy jellyseer repo
+  become: true
+  ansible.builtin.copy:
+    src: jellyseer
+    dest: /root/docker/
+    owner: root
+    group: root
+    mode: '0644'
+
+# Start 
+- name: Create and start jellyseer via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: /root/docker/jellyseer
 
 # TODO ajouter les Indexers jacket format json
 

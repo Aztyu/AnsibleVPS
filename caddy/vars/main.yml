@@ -20,3 +20,5 @@ services:
     port: 7878
   series:
     port: 8989
+  catalog:
+    port: 5055
