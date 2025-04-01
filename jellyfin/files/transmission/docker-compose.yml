@@ -3,7 +3,6 @@ services:
       cap_add:
           - NET_ADMIN
       volumes:
-          - /root/transmission/config/incomplete:/data/incomplete
           - /mnt/storagebox/media/:/data/completed
           - /root/transmission/config/:/config
           - /root/transmission/openvpn/:/etc/openvpn/custom/
