@@ -110,31 +110,33 @@
 - name: Set permissions
   command: chmod +x /home/cloud/install.sh
 
-- name: Install pip
+- name: Pré-requis Sonarr / Radarr
   apt:
     update_cache: yes
     name:
       - python3-pip
       - python3-pexpect
-
-#- name: Run install
-#  ansible.builtin.expect:
-#    command: /home/cloud/install.sh
-#    responses:
-#      'What user should Sonarr run as? (Default: sonarr):': 'cloud'
-#      'What group should Sonarr run as? (Default: media):': 'media'
-#      'Press enter to continue or ctrl+c to exit...': ''
-
-# Installer Radarr
-
-# Pré-requis
-- name: Install SQLite
-  apt:
-    name:
       - curl
       - sqlite3
-    state: present
 
+- name: Run install
+  ansible.builtin.expect:
+    command: /home/cloud/install.sh
+    responses:
+      'What user should Sonarr run as': 
+        - 'cloud'
+      'What group should Sonarr run as': 
+        - 'media'
+      'Press enter to continue': 
+        - ''
+
+- name: Restart Sonarr to apply update
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    name: sonarr
+
+# Installer Radarr
 - name: Create Radarr file
   ansible.builtin.file:
     path: /var/lib/radarr
@@ -160,11 +162,8 @@
     group: media
     mode: '0644'
 
-- name: Reload systemd
-  ansible.builtin.systemd_service:
-    daemon_reload: true
-
 - name: Start Radarr
   ansible.builtin.systemd_service:
-    state: started
-    name: radarr.service
+    state: restarted
+    daemon_reload: true
+    name: radarr
