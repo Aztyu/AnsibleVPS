@@ -25,7 +25,7 @@ services:
       image: haugene/transmission-openvpn
       deploy:
         restart_policy:
-        condition: on-failure
-        delay: 300s
-        max_attempts: 2
-        window: 60s
+          condition: on-failure
+          delay: 300s
+          max_attempts: 2
+          window: 60s
