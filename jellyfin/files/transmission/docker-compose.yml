@@ -3,6 +3,7 @@ services:
       cap_add:
           - NET_ADMIN
       volumes:
+          - /mnt/storagebox/media/incomplete:/data/incomplete # On passe par VFS donc on peut se servir du mnt
           - /mnt/storagebox/media/:/data/completed
           - /root/transmission/config/:/config
           - /root/transmission/openvpn/:/etc/openvpn/custom/
