@@ -22,7 +22,7 @@
   become: true
   ansible.builtin.copy:
     src: transmission
-    dest: /root/docker/
+    dest: "{{ dockge_base_folder }}"
     owner: root
     group: root
     mode: '0644'
@@ -30,7 +30,7 @@
 # Start 
 - name: Create and start transmission via docker-compose
   community.docker.docker_compose_v2:
-    project_src: /root/docker/transmission
+    project_src: "{{ dockge_base_folder }}transmission"
 
 - name: Install extrepo
   apt:
@@ -90,7 +90,7 @@
   become: true
   ansible.builtin.copy:
     src: jellyseer
-    dest: /root/docker/
+    dest: "{{ dockge_base_folder }}"
     owner: root
     group: root
     mode: '0644'
@@ -98,7 +98,7 @@
 # Start 
 - name: Create and start jellyseer via docker-compose
   community.docker.docker_compose_v2:
-    project_src: /root/docker/jellyseer
+    project_src: "{{ dockge_base_folder }}jellyseer"
 
 # TODO ajouter les Indexers jacket format json
 
