@@ -32,6 +32,7 @@
 
   vars_files:
     - "vault/secrets.yml"
+    - "global_vars.yml"
 
   roles:
     - {role: 'caddy', tags: 'caddy'}

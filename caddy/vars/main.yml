@@ -22,3 +22,5 @@ services:
     port: 8989
   catalog:
     port: 5055
+  dockge:
+    port: 5001

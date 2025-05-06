@@ -1,2 +1,4 @@
 ---
 # vars file for jellyfin
+
+transmission_docker_folder: "{{ docker_compose_file_path }}/transmission"

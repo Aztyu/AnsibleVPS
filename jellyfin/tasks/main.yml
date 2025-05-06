@@ -21,8 +21,8 @@
 - name: Copy transmission repo
   become: true
   ansible.builtin.copy:
-    src: transmission
-    dest: /root/docker/
+    src: transmission/docker-compose.yml
+    dest: "{{ transmission_docker_folder }}/docker-compose.yml"
     owner: root
     group: root
     mode: '0644'
@@ -30,7 +30,7 @@
 # Start 
 - name: Create and start transmission via docker-compose
   community.docker.docker_compose_v2:
-    project_src: /root/docker/transmission
+    project_src: "{{ transmission_docker_folder }}"
 
 - name: Install extrepo
   apt:
@@ -85,12 +85,11 @@
     regexp: '"AdminPassword": null,'
     replace: '"AdminPassword": "2a717252d0212e1d016b1d17f3215ca04d2899cc0134be6bacde91bba370bc2435f336235a1126079ab2f4be2a182154e6ffe600b610a111cd65209d5417593b",'
 
-
 - name: Copy jellyseer repo
   become: true
   ansible.builtin.copy:
     src: jellyseer
-    dest: /root/docker/
+    dest: "{{ docker_compose_file_path }}"
     owner: root
     group: root
     mode: '0644'
@@ -98,9 +97,9 @@
 # Start 
 - name: Create and start jellyseer via docker-compose
   community.docker.docker_compose_v2:
-    project_src: /root/docker/jellyseer
+    project_src: "{{ docker_compose_file_path }}/jellyseer"
 
-# TODO ajouter les Indexers jacket format json
+# # TODO ajouter les Indexers jacket format json
 
 - name: Download Sonarr
   ansible.builtin.get_url:

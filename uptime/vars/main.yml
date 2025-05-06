@@ -1,3 +1,4 @@
 ---
 # vars file for uptime
-uptime_docker_folder: /root/docker/uptime-kuma
+uptime_docker_folder: "{{ docker_compose_file_path }}/uptime-kuma"
+dockge_docker_folder: /root/docker/dockge
