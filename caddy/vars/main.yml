@@ -22,5 +22,7 @@ services:
     port: 8989
   catalog:
     port: 5055
-  docker:
+  dockge:
     port: 5001
+  backup:
+    port: 9898
