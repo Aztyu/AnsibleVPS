@@ -26,3 +26,5 @@ services:
     port: 5001
   backup:
     port: 9898
+  gotify:
+    port: 8888
