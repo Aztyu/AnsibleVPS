@@ -32,9 +32,11 @@
 
   vars_files:
     - "vault/secrets.yml"
+    - main_vars.yml
 
   roles:
     - {role: 'caddy', tags: 'caddy'}
     - {role: 'immich', tags: 'immich'}
     - {role: 'jellyfin', tags: 'jellyfin'}
     - {role: 'uptime', tags: 'uptime'}
+    - {role: 'backup', tags: 'backup'}

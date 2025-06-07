@@ -7,7 +7,6 @@
     state: directory
     mode: '0755'
 
-# Copy docker files
 - name: Copy UptimeKuma repo
   become: true
   ansible.builtin.copy:
@@ -17,8 +16,31 @@
     group: root
     mode: '0644'
 
-# Start 
 - name: Create and start UptimeKuma via docker-compose
   community.docker.docker_compose_v2:
     project_src: "{{ uptime_docker_folder }}"
 
+- name: Create Dockge compose directory
+  ansible.builtin.file:
+    path: "{{ dockge_docker_folder }}"
+    state: directory
+    mode: '0755'
+
+- name: Create Dockge stack directory
+  ansible.builtin.file:
+    path: /opt/stacks
+    state: directory
+    mode: '0755'
+
+- name: Copy Dockge repo
+  become: true
+  ansible.builtin.copy:
+    src: dockge/docker-compose.yml
+    dest: "{{ dockge_docker_folder }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create and start UptimeKuma via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ dockge_docker_folder }}"
