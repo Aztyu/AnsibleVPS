@@ -2,4 +2,4 @@
 # vars file for immich
 rclone_conf_path: /root/.config/rclone/
 mount_file_path: /etc/systemd/system/
-immich_version: "v1.134.0"
+immich_version: "v1.135.3"
