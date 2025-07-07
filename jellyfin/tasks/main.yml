@@ -95,7 +95,6 @@
     group: root
     mode: '0644'
 
-# Start 
 - name: Create and start jellyseer via docker-compose
   community.docker.docker_compose_v2:
     project_src: "{{ dockge_base_folder }}jellyseer"
@@ -137,7 +136,6 @@
     daemon_reload: true
     name: sonarr
 
-# Installer Radarr
 - name: Create Radarr file
   ansible.builtin.file:
     path: /var/lib/radarr
@@ -168,3 +166,17 @@
     state: restarted
     daemon_reload: true
     name: radarr
+
+- name: Copy yamstack repo
+  become: true
+  ansible.builtin.copy:
+    src: yamstack/
+    dest: "{{ dockge_base_folder }}yamstack/"
+    owner: root
+    group: root
+    mode: '0644'
+
+# Start 
+- name: Create and start Yamstack via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ dockge_base_folder }}/yamstack/"

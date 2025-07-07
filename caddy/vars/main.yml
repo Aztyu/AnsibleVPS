@@ -28,3 +28,5 @@ services:
     port: 9898
   gotify:
     port: 8888
+  track:
+    port: 8000
