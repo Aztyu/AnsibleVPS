@@ -90,7 +90,7 @@
   become: true
   ansible.builtin.copy:
     src: immich/docker-compose.yml
-    dest: /root/docker/immich/docker-compose.yml
+    dest: "{{ dockge_base_folder }}immich/docker-compose.yml"
     owner: root
     group: root
     mode: '0644'
@@ -99,7 +99,7 @@
   become: true
   ansible.builtin.template:
     src: .env.j2
-    dest: /root/docker/immich/.env
+    dest: "{{ dockge_base_folder }}immich/.env"
     owner: root
     group: root
     mode: '0644'
@@ -107,4 +107,4 @@
 # Start 
 - name: Create and start Immich via docker-compose
   community.docker.docker_compose_v2:
-    project_src: /root/docker/immich
+    project_src: "{{ dockge_base_folder }}/immich"

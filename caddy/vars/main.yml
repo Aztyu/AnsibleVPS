@@ -22,3 +22,11 @@ services:
     port: 8989
   catalog:
     port: 5055
+  dockge:
+    port: 5001
+  backup:
+    port: 9898
+  gotify:
+    port: 8888
+  track:
+    port: 8000

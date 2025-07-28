@@ -22,7 +22,7 @@
   become: true
   ansible.builtin.copy:
     src: transmission
-    dest: /root/docker/
+    dest: "{{ dockge_base_folder }}"
     owner: root
     group: root
     mode: '0644'
@@ -30,7 +30,7 @@
 # Start 
 - name: Create and start transmission via docker-compose
   community.docker.docker_compose_v2:
-    project_src: /root/docker/transmission
+    project_src: "{{ dockge_base_folder }}transmission"
 
 - name: Install extrepo
   apt:
@@ -51,7 +51,7 @@
 
 - name: Unarchive Jackett
   ansible.builtin.unarchive:
-    src: https://github.com/Jackett/Jackett/releases/download/v0.22.1691/Jackett.Binaries.LinuxARM64.tar.gz
+    src: "https://github.com/Jackett/Jackett/releases/download/{{ version_jackett }}/Jackett.Binaries.LinuxARM64.tar.gz"
     dest: /home/cloud/
     owner: cloud
     group: media
@@ -90,15 +90,14 @@
   become: true
   ansible.builtin.copy:
     src: jellyseer
-    dest: /root/docker/
+    dest: "{{ dockge_base_folder }}"
     owner: root
     group: root
     mode: '0644'
 
-# Start 
 - name: Create and start jellyseer via docker-compose
   community.docker.docker_compose_v2:
-    project_src: /root/docker/jellyseer
+    project_src: "{{ dockge_base_folder }}jellyseer"
 
 # TODO ajouter les Indexers jacket format json
 
@@ -137,7 +136,6 @@
     daemon_reload: true
     name: sonarr
 
-# Installer Radarr
 - name: Create Radarr file
   ansible.builtin.file:
     path: /var/lib/radarr
@@ -168,3 +166,29 @@
     state: restarted
     daemon_reload: true
     name: radarr
+
+- name: Copy yamstack repo
+  become: true
+  ansible.builtin.copy:
+    src: yamstack/
+    dest: "{{ dockge_base_folder }}yamstack/"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create and start Yamstack via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ dockge_base_folder }}/yamstack/"
+
+- name: Copy FlareSolverr repo
+  become: true
+  ansible.builtin.copy:
+    src: flaresolverr/
+    dest: "{{ dockge_base_folder }}flaresolverr/"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create and start Yamstack via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ dockge_base_folder }}/flaresolverr/"
