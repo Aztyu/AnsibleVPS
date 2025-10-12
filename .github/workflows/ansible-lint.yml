@@ -5,7 +5,7 @@ name: ansible-lint
 on:
   push:
     branches:
-      - '*'
+      - '**'
 
   workflow_dispatch:
 
