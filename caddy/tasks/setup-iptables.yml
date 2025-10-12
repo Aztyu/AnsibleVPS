@@ -1,15 +1,20 @@
+---
 - name: Process service with port
-  debug:
+  ansible.builtin.debug:
     msg: "Setup iptables for port: {{ service_port }}"
 
 - name: Register a variable, ignore errors and continue
   ansible.builtin.command: iptables -C DOCKER-USER -i eth0 ! -s 192.0.2.2 -p tcp --dport {{ service_port }} -j DROP
   register: result
   ignore_errors: true
+  changed_when: result is failed
 
 - name: Add iptable rules to block request direct to Docker
-  shell: iptables -I DOCKER-USER -i eth0 ! -s 192.0.2.2 -p tcp --dport {{ service_port }} -j DROP
+  ansible.builtin.command: iptables -I DOCKER-USER -i eth0 ! -s 192.0.2.2 -p tcp --dport {{ service_port }} -j DROP
+  changed_when: true
   when: result is failed
 
 - name: Save iptable
-  shell: iptables-save > /etc/iptables/rules.v4
+  ansible.builtin.shell: iptables-save > /etc/iptables/rules.v4
+  changed_when: true
+  when: result is failed
