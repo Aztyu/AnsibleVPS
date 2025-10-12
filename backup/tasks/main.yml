@@ -2,8 +2,8 @@
 # tasks file for backup
 
 - name: Install restic
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     name:
       - restic
     state: present
@@ -18,10 +18,11 @@
   ansible.builtin.unarchive:
     src: "https://github.com/garethgeorge/backrest/releases/download/{{ version_backrest }}/backrest_Linux_arm64.tar.gz"
     dest: /home/cloud/backrest/
-    remote_src: yes
+    remote_src: true
 
 - name: Run bash script
-  command: /home/cloud/backrest/install.sh
+  ansible.builtin.command: /home/cloud/backrest/install.sh
+  changed_when: true
 
 - name: Create gotify directory
   ansible.builtin.file:
@@ -38,7 +39,7 @@
     group: root
     mode: '0644'
 
-# Start 
+# Start
 - name: Create and start Gotify via docker-compose
   community.docker.docker_compose_v2:
     project_src: "{{ dockge_base_folder }}/gotify"

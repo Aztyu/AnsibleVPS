@@ -1,32 +1,33 @@
+---
 services:
   transmission-openvpn:
-      cap_add:
-          - NET_ADMIN
-      volumes:
-          - /mnt/storagebox/media/incomplete:/data/incomplete # On passe par VFS donc on peut se servir du mnt
-          - /mnt/storagebox/media/:/data/completed
-          - /root/transmission/config/:/config
-          - /root/transmission/openvpn/:/etc/openvpn/custom/
-      environment:
-          - OPENVPN_PROVIDER=custom
-          - OPENVPN_CONFIG=AirVPN_Germany_UDP-443-Entry3
-          - OPENVPN_USERNAME=user
-          - OPENVPN_PASSWORD=pass
-          - LOCAL_NETWORK=192.168.0.0/16
-      logging:
-          driver: json-file
-          options:
-              max-size: 10m
-      ports:
-          - '9091:9091'
-      sysctls:
-          - "net.ipv6.conf.all.disable_ipv6=0"
-      devices:
-          - /dev/net/tun
-      image: haugene/transmission-openvpn
-      deploy:
-        restart_policy:
-          condition: on-failure
-          delay: 300s
-          max_attempts: 2
-          window: 60s
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - /mnt/storagebox/media/incomplete:/data/incomplete  # On passe par VFS donc on peut se servir du mnt
+      - /mnt/storagebox/media/:/data/completed
+      - /root/transmission/config/:/config
+      - /root/transmission/openvpn/:/etc/openvpn/custom/
+    environment:
+      - OPENVPN_PROVIDER=custom
+      - OPENVPN_CONFIG=AirVPN_Germany_UDP-443-Entry3
+      - OPENVPN_USERNAME=user
+      - OPENVPN_PASSWORD=pass
+      - LOCAL_NETWORK=192.168.0.0/16
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    ports:
+      - '9091:9091'
+    sysctls:
+      - "net.ipv6.conf.all.disable_ipv6=0"
+    devices:
+      - /dev/net/tun
+    image: haugene/transmission-openvpn
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 300s
+        max_attempts: 2
+        window: 60s
