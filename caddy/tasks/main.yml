@@ -2,42 +2,42 @@
 # tasks file for caddy
 
 - name: Install required packages
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     name:
       - debian-keyring
       - debian-archive-keyring
       - apt-transport-https
-      - iptables-persistent # Used for iptables save
+      - iptables-persistent   # Used for iptables save
       - curl
     state: present
 
-- name: TÃ©lÃ©charger et enregistrer la clÃ© GPG de Caddy
+- name: Télécharger et enregistrer la clé GPG de Caddy
   ansible.builtin.get_url:
     url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
     dest: /tmp/caddy-stable.gpg.key
     mode: '0644'
 
-- name: Convertir la clÃ© GPG au format binaire et l'enregistrer
+- name: Convertir la clé GPG au format binaire et l'enregistrer
   ansible.builtin.command: >
     gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg /tmp/caddy-stable.gpg.key
   args:
     creates: /usr/share/keyrings/caddy-stable-archive-keyring.gpg
 
-- name: Supprimer le fichier temporaire de la clÃ© GPG
+- name: Supprimer le fichier temporaire de la clé GPG
   ansible.builtin.file:
     path: /tmp/caddy-stable.gpg.key
     state: absent
 
-- name: Ajouter le dÃ©pÃ´t APT de Caddy
+- name: Ajouter le dépôt APT de Caddy
   ansible.builtin.get_url:
     url: https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt
     dest: /etc/apt/sources.list.d/caddy-stable.list
     mode: '0644'
 
 - name: Install Caddy
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     name: caddy
     state: present
 
@@ -123,7 +123,7 @@
     name: caddy
 
 - name: Include task for each service
-  include_tasks: setup-iptables.yml
+  ansible.builtin.include_tasks: setup-iptables.yml
   vars:
     service_port: "{{ item.value.port }}"
   with_dict: "{{ services }}"
