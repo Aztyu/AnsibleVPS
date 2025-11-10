@@ -11,7 +11,7 @@
   become: true
   ansible.builtin.copy:
     src: AirVPN_Germany_UDP-443-Entry3.ovpn
-    dest: /root/transmission/openvpn/
+    dest: "{{ dockge_base_folder }}transmission/openvpn/"
     decrypt: yes
     owner: root
     group: root
