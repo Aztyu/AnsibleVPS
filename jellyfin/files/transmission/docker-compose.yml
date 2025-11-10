@@ -5,8 +5,8 @@ services:
       volumes:
           - /mnt/storagebox/media/incomplete:/data/incomplete # On passe par VFS donc on peut se servir du mnt
           - /mnt/storagebox/media/:/data/completed
-          - /root/transmission/config/:/config
-          - /root/transmission/openvpn/:/etc/openvpn/custom/
+          - /opt/stacks/transmission/config/:/config
+          - /opt/stacks/transmission/openvpn/:/etc/openvpn/custom/
       environment:
           - OPENVPN_PROVIDER=custom
           - OPENVPN_CONFIG=AirVPN_Germany_UDP-443-Entry3
