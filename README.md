@@ -17,8 +17,6 @@ Launch playbook -> ansible-playbook intro_playbook.yml --vault-password-file=pas
 
 TODO
 
+- Fix ansible-lint vault en faisant https://docs.ansible.com/ansible/latest/tips_tricks/ansible_tips_tricks.html#keep-vaulted-variables-safely-visible
 - Récupérer les confs Radarr/Sonarr/Jackett pour les mettre dans le playbook
-- Backup voir https://www.backblaze.com/docs/cloud-storage-configure-backblaze-b2-with-duplicity-on-linux
-- Installer https://github.com/bonukai/MediaTracker?tab=readme-ov-file 
-- Brancher Uptime Kuma via mail
 - Voir pour un Fail2Ban

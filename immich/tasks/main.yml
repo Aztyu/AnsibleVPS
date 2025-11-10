@@ -2,25 +2,25 @@
 # tasks file for caddy
 
 - name: Add Docker repository signature
-  apt_key:
+  ansible.builtin.apt_key:
     url: "https://download.docker.com/linux/debian/gpg"
     state: present
 
 - name: Add Docker repository to sources list
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo:
       "deb https://download.docker.com/linux/debian
       bookworm stable"
     state: present
 
 - name: Install required packages
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     name:
-      - docker-ce 
-      - docker-ce-cli 
-      - containerd.io 
-      - docker-buildx-plugin 
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
       - docker-compose-plugin
       - rclone
       - fuse
@@ -104,7 +104,7 @@
     group: root
     mode: '0644'
 
-# Start 
+# Start
 - name: Create and start Immich via docker-compose
   community.docker.docker_compose_v2:
     project_src: "{{ dockge_base_folder }}/immich"

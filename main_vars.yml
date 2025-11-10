@@ -1,1 +1,8 @@
+---
 dockge_base_folder: /opt/stacks/
+
+# Variables Vault
+immich_db_password: XXXXXXX
+storagebox_password: XXXXXXX
+storagebox_user: XXXXXXXX
+gotify_password: XXXXXXXX

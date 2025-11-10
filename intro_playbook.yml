@@ -6,29 +6,29 @@
     user: cloud
     group: media
   pre_tasks:
-  - name: Ensure group "{{ group }}" exists
-    ansible.builtin.group:
-      name: "{{ group }}"
-      state: present
-  - name: Add the user {{ user }}
-    ansible.builtin.user:
-      name: "{{ user }}"
-      group: "{{ group }}"
-      create_home: yes
-  - name: Deactivate password auth
-    ansible.builtin.replace:
-      path: /etc/ssh/sshd_config
-      regexp: '#PasswordAuthentication yes'
-      replace: 'PasswordAuthentication no'
-  - name: Reload service ssh
-    ansible.builtin.systemd_service:
-      name: sshd.service
-      state: reloaded
-  - name: Upgrade all apt packages
-    apt:
-      force_apt_get: yes
-      upgrade: dist
-    become: yes
+    - name: Ensure group exists
+      ansible.builtin.group:
+        name: "{{ group }}"
+        state: present
+    - name: Add the user {{ user }}
+      ansible.builtin.user:
+        name: "{{ user }}"
+        group: "{{ group }}"
+        create_home: true
+    - name: Deactivate password auth
+      ansible.builtin.replace:
+        path: /etc/ssh/sshd_config
+        regexp: '#PasswordAuthentication yes'
+        replace: 'PasswordAuthentication no'
+    - name: Reload service ssh
+      ansible.builtin.systemd_service:
+        name: sshd.service
+        state: reloaded
+    - name: Upgrade all apt packages
+      ansible.builtin.apt:
+        force_apt_get: true
+        upgrade: dist
+      become: true
 
   vars_files:
     - "vault/secrets.yml"

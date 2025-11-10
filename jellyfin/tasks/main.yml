@@ -12,7 +12,7 @@
   ansible.builtin.copy:
     src: AirVPN_Germany_UDP-443-Entry3.ovpn
     dest: /root/transmission/openvpn/
-    decrypt: yes
+    decrypt: true
     owner: root
     group: root
     mode: '0644'
@@ -27,24 +27,25 @@
     group: root
     mode: '0644'
 
-# Start 
+# Start
 - name: Create and start transmission via docker-compose
   community.docker.docker_compose_v2:
     project_src: "{{ dockge_base_folder }}transmission"
 
 - name: Install extrepo
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     name:
       - extrepo
     state: present
 
 - name: Add Jellyfin repo
-  shell: extrepo enable jellyfin
+  ansible.builtin.command: extrepo enable jellyfin
+  changed_when: true
 
 - name: Install jellyfin
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     name:
       - jellyfin
     state: present
@@ -55,13 +56,15 @@
     dest: /home/cloud/
     owner: cloud
     group: media
-    remote_src: yes
+    remote_src: true
 
 - name: Set permissions
-  command: chmod +x /home/cloud/Jackett/install_service_systemd.sh
+  ansible.builtin.command: chmod +x /home/cloud/Jackett/install_service_systemd.sh
+  changed_when: true
 
 - name: Run bash script
-  command: /home/cloud/Jackett/install_service_systemd.sh
+  ansible.builtin.command: /home/cloud/Jackett/install_service_systemd.sh
+  changed_when: true
 
 # TODO check if we can fix if user/group need to be cloud
 - name: Fix script Jackett
@@ -83,6 +86,7 @@
   ansible.builtin.replace:
     path: /etc/systemd/system/jackett.service
     regexp: '"AdminPassword": null,'
+    # TODO : Passer dans Vault et enlever régle dans .yamllint
     replace: '"AdminPassword": "2a717252d0212e1d016b1d17f3215ca04d2899cc0134be6bacde91bba370bc2435f336235a1126079ab2f4be2a182154e6ffe600b610a111cd65209d5417593b",'
 
 
@@ -108,11 +112,12 @@
     mode: '0644'
 
 - name: Set permissions
-  command: chmod +x /home/cloud/install.sh
+  ansible.builtin.command: chmod +x /home/cloud/install.sh
+  changed_when: true
 
 - name: Pré-requis Sonarr / Radarr
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     name:
       - python3-pip
       - python3-pexpect
@@ -123,11 +128,11 @@
   ansible.builtin.expect:
     command: /home/cloud/install.sh
     responses:
-      'What user should Sonarr run as': 
+      'What user should Sonarr run as':
         - 'cloud'
-      'What group should Sonarr run as': 
+      'What group should Sonarr run as':
         - 'media'
-      'Press enter to continue': 
+      'Press enter to continue':
         - ''
 
 - name: Restart Sonarr to apply update
@@ -150,7 +155,7 @@
     dest: /opt/
     owner: cloud
     group: media
-    remote_src: yes
+    remote_src: true
 
 - name: Copy Radarr.service
   become: true
