@@ -30,3 +30,5 @@ services:
     port: 8888
   track:
     port: 8000
+  mealie:
+    port: 9925

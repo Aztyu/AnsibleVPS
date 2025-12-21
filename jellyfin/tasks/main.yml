@@ -189,6 +189,6 @@
     group: root
     mode: '0644'
 
-- name: Create and start Yamstack via docker-compose
+- name: Create and start FlareSolverr via docker-compose
   community.docker.docker_compose_v2:
     project_src: "{{ dockge_base_folder }}/flaresolverr/"
