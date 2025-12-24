@@ -20,5 +20,4 @@ TODO
 - Récupérer les confs Radarr/Sonarr/Jackett pour les mettre dans le playbook
 - Backup voir https://www.backblaze.com/docs/cloud-storage-configure-backblaze-b2-with-duplicity-on-linux
 - Installer https://github.com/bonukai/MediaTracker?tab=readme-ov-file 
-- Brancher Uptime Kuma via mail
 - Voir pour un Fail2Ban
