@@ -3,7 +3,7 @@
 
 - name: Create Mealie directory
   ansible.builtin.file:
-    path: "{{dockge_base_folder}}/mealie"
+    path: "{{dockge_base_folder}}mealie"
     state: directory
     mode: '0755'
 
@@ -11,11 +11,11 @@
   become: true
   ansible.builtin.copy:
     src: mealie/docker-compose.yml
-    dest: "{{dockge_base_folder}}/mealie/docker-compose.yml"
+    dest: "{{dockge_base_folder}}mealie/docker-compose.yml"
     owner: root
     group: root
     mode: '0644'
 
 - name: Create and start Mealie via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{dockge_base_folder}}/mealie"
+    project_src: "{{dockge_base_folder}}mealie"

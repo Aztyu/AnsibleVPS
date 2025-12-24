@@ -37,6 +37,7 @@
   roles:
     - {role: 'backup', tags: 'backup'}
     - {role: 'caddy', tags: 'caddy'}
+    - {role: 'file-share', tags: 'fileshare'}
     - {role: 'immich', tags: 'immich'}
     - {role: 'jellyfin', tags: 'jellyfin'}
     - {role: 'mealie', tags: 'mealie'}

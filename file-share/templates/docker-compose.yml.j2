@@ -1,0 +1,11 @@
+services:
+  fileshare:
+    image: psitrax/psitransfer
+    container_name: fileshare
+    environment:
+      PSITRANSFER_ADMIN_PASS: {{ fileshare_password }}
+    ports:
+      - '1457:3000'
+    volumes:
+      - '{{ fileshare_directory }}:/data'
+    restart: unless-stopped

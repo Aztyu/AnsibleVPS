@@ -32,3 +32,9 @@ services:
     port: 8000
   mealie:
     port: 9925
+  fileshare:
+    port: 1457
+    user: cloud
+    password: $2a$14$S2TpnF2a67H2UMx.2Ce5juk/w1dloYBQPmooyPxxdNvO.QkWR8gx.
+  prowlarr:
+    port: 9696
