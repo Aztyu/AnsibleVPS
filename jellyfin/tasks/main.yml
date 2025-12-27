@@ -190,11 +190,11 @@
 
 - name: Create and start FlareSolverr via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{ dockge_base_folder }}/flaresolverr/"
+    project_src: "{{ dockge_base_folder }}flaresolverr/"
 
 - name: Create Prowlarr data directory
   ansible.builtin.file:
-    path: "{{ dockge_base_folder }}/prowlarr"
+    path: "{{ dockge_base_folder }}prowlarr"
     state: directory
     mode: '0755'
 
@@ -202,11 +202,11 @@
   become: true
   ansible.builtin.template:
     src: prowlarr/docker-compose.yml.j2
-    dest: "{{ dockge_base_folder }}/prowlarr/docker-compose.yml"
+    dest: "{{ dockge_base_folder }}prowlarr/docker-compose.yml"
     owner: root
     group: root
     mode: '0644'
 
 - name: Create and start Prowlarr via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{ dockge_base_folder }}/prowlarr/"
+    project_src: "{{ dockge_base_folder }}prowlarr/"
