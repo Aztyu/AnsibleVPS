@@ -107,4 +107,4 @@
 # Start 
 - name: Create and start Immich via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{ dockge_base_folder }}/immich"
+    project_src: "{{ dockge_base_folder }}immich"

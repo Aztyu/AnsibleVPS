@@ -41,4 +41,4 @@
 # Start 
 - name: Create and start Gotify via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{ dockge_base_folder }}/gotify"
+    project_src: "{{ dockge_base_folder }}gotify"
