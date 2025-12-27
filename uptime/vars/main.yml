@@ -1,4 +1,0 @@
----
-# vars file for uptime
-uptime_docker_folder: /root/docker/uptime-kuma
-dockge_docker_folder: /root/docker/dockge

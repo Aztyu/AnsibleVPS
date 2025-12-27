@@ -1,0 +1,118 @@
+---
+# tasks file for utils
+
+- name: Create Uptime directory
+  ansible.builtin.file:
+    path: "{{ uptime_docker_folder }}"
+    state: directory
+    mode: '0755'
+
+- name: Copy UptimeKuma repo
+  become: true
+  ansible.builtin.copy:
+    src: uptime-kuma/docker-compose.yml
+    dest: "{{ uptime_docker_folder }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create and start UptimeKuma via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ uptime_docker_folder }}"
+
+- name: Create Dockge compose directory
+  ansible.builtin.file:
+    path: "{{ dockge_docker_folder }}"
+    state: directory
+    mode: '0755'
+
+- name: Create Dockge stack directory
+  ansible.builtin.file:
+    path: /opt/stacks
+    state: directory
+    mode: '0755'
+
+- name: Copy Dockge repo
+  become: true
+  ansible.builtin.copy:
+    src: dockge/docker-compose.yml
+    dest: "{{ dockge_docker_folder }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create and start UptimeKuma via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ dockge_docker_folder }}"
+
+- name: Create Mealie directory
+  ansible.builtin.file:
+    path: "{{dockge_base_folder}}mealie"
+    state: directory
+    mode: '0755'
+
+- name: Copy Mealie repo
+  become: true
+  ansible.builtin.copy:
+    src: mealie/docker-compose.yml
+    dest: "{{dockge_base_folder}}mealie/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create and start Mealie via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{dockge_base_folder}}mealie"
+
+- name: Create fileshare docker directory
+  ansible.builtin.file:
+    path: "{{dockge_base_folder}}fileshare"
+    state: directory
+    mode: '0755'
+
+- name: Create fileshare data directory
+  ansible.builtin.file:
+    path: "{{ fileshare_directory }}"
+    state: directory
+    mode: '0755'
+
+- name: Setup Fileshare docker compose
+  become: true
+  ansible.builtin.template:
+    src: docker-compose-fileshare.yml.j2
+    dest: "{{ dockge_base_folder }}fileshare/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create and start Fileshare via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{dockge_base_folder}}fileshare"
+
+- name: Create vikunja docker directory
+  ansible.builtin.file:
+    path: "{{dockge_base_folder}}vikunja"
+    state: directory
+    mode: '0755'
+
+- name: Create vikunja data directories
+  ansible.builtin.file:
+    path: "{{ vikunja_base_directory }}/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - files
+    - db
+
+- name: Setup Vikunja docker compose
+  become: true
+  ansible.builtin.template:
+    src: docker-compose-vikunja.yml.j2
+    dest: "{{ dockge_base_folder }}vikunja/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create and start Vikunja via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{dockge_base_folder}}vikunja"
