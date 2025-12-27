@@ -38,3 +38,5 @@ services:
     password: $2a$14$S2TpnF2a67H2UMx.2Ce5juk/w1dloYBQPmooyPxxdNvO.QkWR8gx.
   prowlarr:
     port: 9696
+  todo:
+    port: 3456
