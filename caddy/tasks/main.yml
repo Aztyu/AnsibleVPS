@@ -11,26 +11,28 @@
       - iptables-persistent # Used for iptables save
     state: present
 
-- name: Add Cloudsmith repository
-  apt_key:
-    url: "https://dl.cloudsmith.io/public/caddy/stable/gpg.key"
-    state: present
+- name: Télécharger et enregistrer la clé GPG de Caddy
+  ansible.builtin.get_url:
+    url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
+    dest: /tmp/caddy-stable.gpg.key
+    mode: '0644'
 
-- name: Add Caddy repository to sources list
-  apt_repository:
-    repo:
-      "deb https://dl.cloudsmith.io/public/caddy/stable/deb/debian
-      any-version main"
-    state: present
-    filename: caddy-stable
+- name: Convertir la clé GPG au format binaire et l'enregistrer
+  ansible.builtin.command: >
+    gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg /tmp/caddy-stable.gpg.key
+  args:
+    creates: /usr/share/keyrings/caddy-stable-archive-keyring.gpg
 
-- name: Add Caddy src repository to sources list
-  apt_repository:
-    repo:
-      "deb-src https://dl.cloudsmith.io/public/caddy/stable/deb/debian
-      any-version main"
-    state: present
-    filename: caddy-stable
+- name: Supprimer le fichier temporaire de la clé GPG
+  ansible.builtin.file:
+    path: /tmp/caddy-stable.gpg.key
+    state: absent
+
+- name: Ajouter le dépôt APT de Caddy
+  ansible.builtin.get_url:
+    url: https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt
+    dest: /etc/apt/sources.list.d/caddy-stable.list
+    mode: '0644'
 
 - name: Install Caddy
   apt:
