@@ -116,6 +116,44 @@
 - name: Create and start Vikunja via docker-compose
   community.docker.docker_compose_v2:
     project_src: "{{dockge_base_folder}}vikunja"
+
+- name: Create Adventure docker directory
+  ansible.builtin.file:
+    path: "{{dockge_base_folder}}adventure"
+    state: directory
+    mode: '0755'
+
+- name: Create Adventure data directories
+  ansible.builtin.file:
+    path: "{{ adventure_base_directory }}/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - data
+    - db
+
+- name: Setup Adventure docker compose
+  become: true
+  ansible.builtin.template:
+    src: adventurelog/docker-compose.yml.j2
+    dest: "{{ dockge_base_folder }}adventure/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Setup Adventure docker compose environnement
+  become: true
+  ansible.builtin.template:
+    src: adventurelog/.env.j2
+    dest: "{{ dockge_base_folder }}adventure/.env"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create and start Adventure via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{dockge_base_folder}}adventure"
+
 - name: Create Sablier docker directory
   ansible.builtin.file:
     path: "{{dockge_base_folder}}sablier"

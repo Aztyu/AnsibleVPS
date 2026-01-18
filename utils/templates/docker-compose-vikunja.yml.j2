@@ -5,14 +5,30 @@ services:
       VIKUNJA_SERVICE_JWTSECRET: {{ vikunja_secret }}
       VIKUNJA_SERVICE_PUBLICURL: https://todo.corentinbeal.fr/
       # Set to true for the first installation
-      VIKUNJA_SERVICE_ENABLEREGISTRATION: false
-      # Note the default path is /app/vikunja/vikunja.db.
-      # This config variable moves it to a different folder so you can use a volume and
-      # store the database file outside the container so state is persisted even if the container is destroyed.
-      VIKUNJA_DATABASE_PATH: /db/vikunja.db
+      VIKUNJA_SERVICE_ENABLEREGISTRATION: true
+      VIKUNJA_DATABASE_HOST: db
+      VIKUNJA_DATABASE_PASSWORD: {{ vikunja_db_secret }}
+      VIKUNJA_DATABASE_TYPE: postgres
+      VIKUNJA_DATABASE_USER: vikunja
+      VIKUNJA_DATABASE_DATABASE: vikunja
     ports:
       - 3456:3456
     volumes:
       - {{ vikunja_base_directory }}/files:/app/vikunja/files
-      - {{ vikunja_base_directory }}/db:/db
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
+  
+  db:
+    image: postgres:18
+    environment:
+        POSTGRES_PASSWORD: {{ vikunja_db_secret }}
+        POSTGRES_USER: vikunja
+    volumes:
+        - ./db:/var/lib/postgresql
+    restart: unless-stopped
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -h localhost -U $$POSTGRES_USER"]
+        interval: 2s
+        start_period: 30s
