@@ -5,6 +5,14 @@
     {{ services[subdomain].user }} {{ services[subdomain].password }}
   }
 {% endif %}
+{% if services[subdomain].autostop is defined %}
+  route {{ services[subdomain].autostop.path }} {
+  sablier http://localhost:10000 {
+    names {{ services[subdomain].autostop.names }}
+    dynamic
+  }
+  }
+{% endif %}
   reverse_proxy localhost:{{ services[subdomain].port }}
 }
 

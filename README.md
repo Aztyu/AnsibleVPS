@@ -21,3 +21,6 @@ TODO
 - Backup voir https://www.backblaze.com/docs/cloud-storage-configure-backblaze-b2-with-duplicity-on-linux
 - Installer https://github.com/bonukai/MediaTracker?tab=readme-ov-file 
 - Voir pour un Fail2Ban
+
+- Installer caddy via https://caddyserver.com/docs/build#package-support-files-for-custom-builds-for-debianubunturaspbian
+- Passer caddy en docker-compose

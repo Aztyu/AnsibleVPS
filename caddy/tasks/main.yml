@@ -9,6 +9,7 @@
       - debian-archive-keyring
       - apt-transport-https
       - iptables-persistent # Used for iptables save
+      - curl
     state: present
 
 - name: Télécharger et enregistrer la clé GPG de Caddy
@@ -39,6 +40,73 @@
     update_cache: yes
     name: caddy
     state: present
+
+- name: Add Cloudsmith GPG key for xcaddy
+  ansible.builtin.shell: >
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/xcaddy/gpg.key' |
+    sudo gpg --dearmor -o /usr/share/keyrings/caddy-xcaddy-archive-keyring.gpg
+  args:
+    creates: /usr/share/keyrings/caddy-xcaddy-archive-keyring.gpg
+
+- name: Add Cloudsmith repository for xcaddy
+  ansible.builtin.shell: >
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/xcaddy/debian.deb.txt' |
+    sudo tee /etc/apt/sources.list.d/caddy-xcaddy.list
+  args:
+    creates: /etc/apt/sources.list.d/caddy-xcaddy.list
+
+- name: Update apt package index
+  apt:
+    update_cache: yes
+
+- name: Install xcaddy
+  apt:
+    name: xcaddy
+    state: present
+
+- name: Check if Go is already installed and at the correct version
+  ansible.builtin.command: go version
+  register: go_version_check
+  ignore_errors: yes
+  changed_when: false
+  failed_when: false
+
+- name: Set fact if Go is already installed and correct
+  ansible.builtin.set_fact:
+    go_already_installed: "{{ go_version_check.stdout is defined and 'go version go' + go_version in go_version_check.stdout }}"
+
+- name: Download Go binary for ARM
+  ansible.builtin.get_url:
+    url: "{{ go_download_url }}"
+    dest: "/tmp/{{ go_tarball }}"
+    mode: '0755'
+  when: not go_already_installed
+
+- name: Remove old Go installation if exists
+  ansible.builtin.file:
+    path: "{{ go_install_dir }}"
+    state: absent
+  when: not go_already_installed
+
+- name: Extract Go binary
+  ansible.builtin.unarchive:
+    src: "/tmp/{{ go_tarball }}"
+    dest: "/usr/local"
+    remote_src: yes
+  when: not go_already_installed
+
+- name: Add Go to PATH for all users if not already present
+  ansible.builtin.lineinfile:
+    path: /etc/profile
+    line: "{{ go_path_line }}"
+    insertafter: EOF
+  when: go_path_line not in lookup('file', '/etc/profile')
+
+- name: Source /etc/profile to apply PATH changes
+  ansible.builtin.shell: source /etc/profile
+  args:
+    executable: /bin/bash
+  when: not go_already_installed
 
 - name: Copy Caddyfile template
   become: true
