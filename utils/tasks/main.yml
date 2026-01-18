@@ -116,3 +116,30 @@
 - name: Create and start Vikunja via docker-compose
   community.docker.docker_compose_v2:
     project_src: "{{dockge_base_folder}}vikunja"
+- name: Create Sablier docker directory
+  ansible.builtin.file:
+    path: "{{dockge_base_folder}}sablier"
+    state: directory
+    mode: '0755'
+
+- name: Setup Sablier docker compose
+  become: true
+  ansible.builtin.template:
+    src: sablier/docker-compose.yml.j2
+    dest: "{{ dockge_base_folder }}sablier/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Setup Sablier config file
+  become: true
+  ansible.builtin.template:
+    src: sablier/sablier.yml.j2
+    dest: "{{ dockge_base_folder }}sablier/sablier.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create and start Sablier via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{dockge_base_folder}}sablier"

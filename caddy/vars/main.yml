@@ -32,11 +32,32 @@ services:
     port: 8000
   mealie:
     port: 9925
+    autostop:
+      path: /
+      names: mealie
   fileshare:
     port: 1457
     user: cloud
     password: $2a$14$S2TpnF2a67H2UMx.2Ce5juk/w1dloYBQPmooyPxxdNvO.QkWR8gx.
+    autostop:
+      path: /
+      names: fileshare
   prowlarr:
     port: 9696
   todo:
     port: 3456
+  adventure:
+    port: 8015
+    autostop:
+      path: /
+      names: adventurelog-backend adventurelog-db adventurelog-frontend
+  adventure-server:
+    port: 8016
+
+go_version: "1.25.6"
+go_arch: "arm64"
+
+go_install_dir: "/usr/local/go"
+go_tarball: "go{{ go_version }}.linux-{{ go_arch }}.tar.gz"
+go_download_url: "https://go.dev/dl/{{ go_tarball }}"
+go_path_line: 'export PATH=$PATH:/usr/local/go/bin'

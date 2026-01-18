@@ -1,5 +1,7 @@
 ---
 # vars file for utils
+
+sablier_version: 1.11.1
 dockge_docker_folder: /root/docker/dockge
 uptime_docker_folder: /root/docker/uptime-kuma
 

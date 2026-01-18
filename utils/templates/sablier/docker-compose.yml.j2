@@ -1,0 +1,8 @@
+services:
+  sablier:
+    ports:
+      - 10000:10000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - {{ dockge_base_folder }}sablier/sablier.yml:/etc/sablier/sablier.yml
+    image: sablierapp/sablier:{{ sablier_version }}
