@@ -7,3 +7,4 @@ uptime_docker_folder: /root/docker/uptime-kuma
 
 fileshare_directory: /mnt/storagebox/fileshare
 vikunja_base_directory: /mnt/storagebox/vikunja
+adventure_base_directory: /mnt/storagebox/adventure
