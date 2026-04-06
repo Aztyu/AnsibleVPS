@@ -1,23 +1,27 @@
-# ansible_intro
-The files in this repository are part of the demo "Intro to Ansible" article. You can find the full article [here](https://spacelift.io/blog/ansible-tutorial)
 # AnsibleVPS
 
-Getting started :
-Create file vault/secrets.yml 
-```
-immich_db_password: # Random immich dbpassword
-storagebox_password: # Storage box rclone encrypted password
-storagebox_user: # ID Storage box
-```
-Create file password.py and type the Vault file password, add to .gitignore
+## Getting started :
 
-Launch playbook -> ansible-playbook intro_playbook.yml --vault-password-file=password.sh
+Create file `group_vars/all/vault` with all the values in `group_vars/all/vars`
 
--- Windows fix permissions https://github.com/trailofbits/algo/issues/1637
+Create file password.py and type the Vault file password
 
-TODO
+## Launch playbook 
 
-- Fix ansible-lint vault en faisant https://docs.ansible.com/ansible/latest/tips_tricks/ansible_tips_tricks.html#keep-vaulted-variables-safely-visible
+The entire playbook
+
+`ansible-playbook intro_playbook.yml --vault-password-file=password.sh`
+
+Only one tag 
+
+`ansible-playbook intro_playbook.yml --vault-password-file=password.sh --tag=jellyfin`
+
+## Troubleshoot
+
+If needed : Windows fix permissions https://github.com/trailofbits/algo/issues/1637
+
+## TODO
+
 - Récupérer les confs Radarr/Sonarr/Jackett pour les mettre dans le playbook
 - Voir pour un Fail2Ban
-- Passer caddy en docker-compose
+- Passer caddy en docker-compose pour laisser les connexions dans Docker
