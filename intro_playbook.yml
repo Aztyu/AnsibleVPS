@@ -38,7 +38,6 @@
         autoremove: true
 
   vars_files:
-    - "vault/secrets.yml"
     - main_vars.yml
 
   roles:

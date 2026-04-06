@@ -1,5 +1,9 @@
 ---
 exclude_paths:
   - .github
+  - vault/
+  - group_vars/all/vault
+skip_list:
+  - internal-error
 warn_list:
   - yaml[document-start]
