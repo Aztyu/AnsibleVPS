@@ -32,22 +32,24 @@
   community.docker.docker_compose_v2:
     project_src: "{{ dockge_base_folder }}transmission"
 
-- name: Install extrepo
-  apt:
-    update_cache: yes
-    name:
-      - extrepo
-    state: present
+- name: Create Jellyfin directory
+  ansible.builtin.file:
+    path: "{{ dockge_base_folder }}jellyfin"
+    state: directory
+    mode: '0755'
 
-- name: Add Jellyfin repo
-  shell: extrepo enable jellyfin
+- name: Copy Jellyfin docker-compose file
+  become: true
+  ansible.builtin.copy:
+    src: jellyfin/
+    dest: "{{ dockge_base_folder }}jellyfin/"
+    owner: root
+    group: root
+    mode: '0644'
 
-- name: Install jellyfin
-  apt:
-    update_cache: yes
-    name:
-      - jellyfin
-    state: present
+- name: Create and start Jellyfin via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ dockge_base_folder }}jellyfin/"
 
 - name: Unarchive Jackett
   ansible.builtin.unarchive:

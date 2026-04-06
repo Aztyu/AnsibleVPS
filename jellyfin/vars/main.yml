@@ -1,3 +1,4 @@
 ---
 # vars file for jellyfin
-version_jackett: v0.22.2125
+version_jackett: v0.24.1542
+version_jellyfin: 10.11.8
