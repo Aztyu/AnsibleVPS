@@ -47,7 +47,7 @@
 
 - name: Create Mealie directory
   ansible.builtin.file:
-    path: "{{dockge_base_folder}}mealie"
+    path: "{{ dockge_base_folder }}mealie"
     state: directory
     mode: '0755'
 
@@ -55,18 +55,18 @@
   become: true
   ansible.builtin.copy:
     src: mealie/docker-compose.yml
-    dest: "{{dockge_base_folder}}mealie/docker-compose.yml"
+    dest: "{{ dockge_base_folder }}mealie/docker-compose.yml"
     owner: root
     group: root
     mode: '0644'
 
 - name: Create and start Mealie via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{dockge_base_folder}}mealie"
+    project_src: "{{ dockge_base_folder }}mealie"
 
 - name: Create fileshare docker directory
   ansible.builtin.file:
-    path: "{{dockge_base_folder}}fileshare"
+    path: "{{ dockge_base_folder }}fileshare"
     state: directory
     mode: '0755'
 
@@ -87,11 +87,11 @@
 
 - name: Create and start Fileshare via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{dockge_base_folder}}fileshare"
+    project_src: "{{ dockge_base_folder }}fileshare"
 
 - name: Create vikunja docker directory
   ansible.builtin.file:
-    path: "{{dockge_base_folder}}vikunja"
+    path: "{{ dockge_base_folder }}vikunja"
     state: directory
     mode: '0755'
 
@@ -115,11 +115,11 @@
 
 - name: Create and start Vikunja via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{dockge_base_folder}}vikunja"
+    project_src: "{{ dockge_base_folder }}vikunja"
 
 - name: Create Adventure docker directory
   ansible.builtin.file:
-    path: "{{dockge_base_folder}}adventure"
+    path: "{{ dockge_base_folder }}adventure"
     state: directory
     mode: '0755'
 
@@ -152,11 +152,11 @@
 
 - name: Create and start Adventure via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{dockge_base_folder}}adventure"
+    project_src: "{{ dockge_base_folder }}adventure"
 
 - name: Create Sablier docker directory
   ansible.builtin.file:
-    path: "{{dockge_base_folder}}sablier"
+    path: "{{ dockge_base_folder }}sablier"
     state: directory
     mode: '0755'
 
@@ -180,4 +180,4 @@
 
 - name: Create and start Sablier via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{dockge_base_folder}}sablier"
+    project_src: "{{ dockge_base_folder }}sablier"

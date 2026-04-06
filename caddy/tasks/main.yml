@@ -12,24 +12,24 @@
       - curl
     state: present
 
-- name: Télécharger et enregistrer la clé GPG de Caddy
+- name: TÃ©lÃ©charger et enregistrer la clÃ© GPG de Caddy
   ansible.builtin.get_url:
     url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
     dest: /tmp/caddy-stable.gpg.key
     mode: '0644'
 
-- name: Convertir la clé GPG au format binaire et l'enregistrer
+- name: Convertir la clÃ© GPG au format binaire et l'enregistrer
   ansible.builtin.command: >
     gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg /tmp/caddy-stable.gpg.key
   args:
     creates: /usr/share/keyrings/caddy-stable-archive-keyring.gpg
 
-- name: Supprimer le fichier temporaire de la clé GPG
+- name: Supprimer le fichier temporaire de la clÃ© GPG
   ansible.builtin.file:
     path: /tmp/caddy-stable.gpg.key
     state: absent
 
-- name: Ajouter le dépôt APT de Caddy
+- name: Ajouter le dÃ©pÃ´t APT de Caddy
   ansible.builtin.get_url:
     url: https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt
     dest: /etc/apt/sources.list.d/caddy-stable.list
@@ -42,38 +42,47 @@
     state: present
 
 - name: Add Cloudsmith GPG key for xcaddy
-  ansible.builtin.shell: >
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/xcaddy/gpg.key' |
-    sudo gpg --dearmor -o /usr/share/keyrings/caddy-xcaddy-archive-keyring.gpg
+  ansible.builtin.get_url:
+    url: https://dl.cloudsmith.io/public/caddy/xcaddy/gpg.key
+    dest: /tmp/caddy-xcaddy.gpg.key
+    mode: '0644'
+
+- name: Convert GPG key to binary format
+  ansible.builtin.command: >
+    gpg --dearmor -o /usr/share/keyrings/caddy-xcaddy-archive-keyring.gpg /tmp/caddy-xcaddy.gpg.key
   args:
     creates: /usr/share/keyrings/caddy-xcaddy-archive-keyring.gpg
 
+- name: Remove temporary GPG key file
+  ansible.builtin.file:
+    path: /tmp/caddy-xcaddy.gpg.key
+    state: absent
+
 - name: Add Cloudsmith repository for xcaddy
-  ansible.builtin.shell: >
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/xcaddy/debian.deb.txt' |
-    sudo tee /etc/apt/sources.list.d/caddy-xcaddy.list
-  args:
-    creates: /etc/apt/sources.list.d/caddy-xcaddy.list
+  ansible.builtin.get_url:
+    url: https://dl.cloudsmith.io/public/caddy/xcaddy/debian.deb.txt
+    dest: /etc/apt/sources.list.d/caddy-xcaddy.list
+    mode: '0644'
 
 - name: Update apt package index
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
 
 - name: Install xcaddy
-  apt:
+  ansible.builtin.apt:
     name: xcaddy
     state: present
 
 - name: Check if Go is already installed and at the correct version
   ansible.builtin.command: go version
   register: go_version_check
-  ignore_errors: yes
+  ignore_errors: true
   changed_when: false
   failed_when: false
 
 - name: Set fact if Go is already installed and correct
   ansible.builtin.set_fact:
-    go_already_installed: "{{ go_version_check.stdout is defined and 'go version go' + go_version in go_version_check.stdout }}"
+    go_already_installed: "{{ go_version_check.stdout is defined and ('go version go' + go_version) in go_version_check.stdout }}"
 
 - name: Download Go binary for ARM
   ansible.builtin.get_url:
@@ -92,7 +101,7 @@
   ansible.builtin.unarchive:
     src: "/tmp/{{ go_tarball }}"
     dest: "/usr/local"
-    remote_src: yes
+    remote_src: true
   when: not go_already_installed
 
 - name: Add Go to PATH for all users if not already present
@@ -103,10 +112,11 @@
   when: go_path_line not in lookup('file', '/etc/profile')
 
 - name: Source /etc/profile to apply PATH changes
-  ansible.builtin.shell: source /etc/profile
+  ansible.builtin.command: source /etc/profile
   args:
     executable: /bin/bash
   when: not go_already_installed
+  changed_when: false
 
 - name: Copy Caddyfile template
   become: true

@@ -12,7 +12,6 @@
   ansible.builtin.copy:
     src: AirVPN_Germany_UDP-443-Entry3.ovpn
     dest: "{{ dockge_base_folder }}transmission/openvpn/"
-    decrypt: true
     owner: root
     group: root
     mode: '0644'
@@ -60,8 +59,9 @@
     remote_src: true
 
 - name: Set permissions
-  ansible.builtin.command: chmod +x /home/cloud/Jackett/install_service_systemd.sh
-  changed_when: true
+  ansible.builtin.file:
+    path: /home/cloud/Jackett/install_service_systemd.sh
+    mode: '0755'
 
 - name: Run bash script
   ansible.builtin.command: /home/cloud/Jackett/install_service_systemd.sh
@@ -112,8 +112,9 @@
     mode: '0644'
 
 - name: Set permissions
-  ansible.builtin.command: chmod +x /home/cloud/install.sh
-  changed_when: true
+  ansible.builtin.file:
+    path: /home/cloud/install.sh
+    mode: '0755'
 
 - name: Pré-requis Sonarr / Radarr
   ansible.builtin.apt:

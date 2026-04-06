@@ -29,11 +29,13 @@
         force_apt_get: true
         upgrade: dist
       become: true
-  - name: Install only security updates
-    apt:
-      upgrade: safe
-      update_cache: yes
-      autoremove: yes
+
+  tasks:
+    - name: Install only security updates
+      ansible.builtin.apt:
+        upgrade: safe
+        update_cache: true
+        autoremove: true
 
   vars_files:
     - "vault/secrets.yml"
