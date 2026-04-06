@@ -29,6 +29,11 @@
       force_apt_get: yes
       upgrade: dist
     become: yes
+  - name: Install only security updates
+    apt:
+      upgrade: safe
+      update_cache: yes
+      autoremove: yes
 
   vars_files:
     - "vault/secrets.yml"
