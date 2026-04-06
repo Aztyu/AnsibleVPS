@@ -1,7 +1,5 @@
 ---
-docker_compose_file_path: /opt/stacks
-
-# Link to the vault variables to allow for ansible-lint
+# Regular variables
 immich_db_password: "{{ vault_immich_db_password }}"
 storagebox_password: "{{ vault_storagebox_password }}"
 storagebox_user: "{{ vault_storagebox_user }}"
