@@ -45,4 +45,5 @@
     - {role: 'caddy', tags: 'caddy'}
     - {role: 'immich', tags: 'immich'}
     - {role: 'jellyfin', tags: 'jellyfin'}
+    - {role: 'cleanup', tags: 'cleanup'}
     - {role: 'utils', tags: 'utils'}

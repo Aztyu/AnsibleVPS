@@ -1,0 +1,41 @@
+---
+# tasks file for cleanup
+# Goal : nettoyer les services/stack obsolètes qui ont été remplacés
+
+- name: Remove standalone FlareSolverr container if it still exists
+  community.docker.docker_container:
+    name: flaresolverr
+    state: absent
+
+- name: Remove standalone FlareSolverr stack directory
+  ansible.builtin.file:
+    path: "{{ dockge_base_folder }}flaresolverr"
+    state: absent
+
+# Jackett : remplacé par Prowlarr (commit "Nettoyage de Jackett")
+- name: Check if legacy Jackett service exists
+  ansible.builtin.stat:
+    path: /etc/systemd/system/jackett.service
+  register: jackett_service_file
+
+- name: Stop and disable legacy Jackett service
+  ansible.builtin.systemd_service:
+    name: jackett.service
+    state: stopped
+    enabled: false
+    daemon_reload: true
+  when: jackett_service_file.stat.exists
+
+- name: Remove legacy Jackett systemd unit
+  ansible.builtin.file:
+    path: /etc/systemd/system/jackett.service
+    state: absent
+
+- name: Reload systemd after Jackett unit removal
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Remove Jackett installation directory
+  ansible.builtin.file:
+    path: /home/cloud/Jackett
+    state: absent
