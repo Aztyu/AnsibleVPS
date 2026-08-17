@@ -25,3 +25,4 @@ If needed : Windows fix permissions https://github.com/trailofbits/algo/issues/1
 - Récupérer les confs Radarr/Sonarr/Jackett pour les mettre dans le playbook
 - Voir pour un Fail2Ban
 - Passer caddy en docker-compose pour laisser les connexions dans Docker
+- Passer le transmission avec le network sous VPN
