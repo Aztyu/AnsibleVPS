@@ -144,19 +144,6 @@
   community.docker.docker_compose_v2:
     project_src: "{{ dockge_base_folder }}yamstack/"
 
-- name: Copy FlareSolverr repo
-  become: true
-  ansible.builtin.copy:
-    src: flaresolverr/
-    dest: "{{ dockge_base_folder }}flaresolverr/"
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Create and start FlareSolverr via docker-compose
-  community.docker.docker_compose_v2:
-    project_src: "{{ dockge_base_folder }}flaresolverr/"
-
 - name: Create Prowlarr data directory
   ansible.builtin.file:
     path: "{{ dockge_base_folder }}prowlarr"

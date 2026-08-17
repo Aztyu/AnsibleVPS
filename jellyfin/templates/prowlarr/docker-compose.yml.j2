@@ -1,5 +1,23 @@
 ---
 services:
+  gluetun:
+    image: qmcgaw/gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - VPN_SERVICE_PROVIDER=airvpn
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY={{ gluetun_wireguard_private_key }}
+      - WIREGUARD_PRESHARED_KEY={{ gluetun_wireguard_preshared_key }}
+      - WIREGUARD_ADDRESSES={{ gluetun_wireguard_addresses }}
+      - SERVER_COUNTRIES=Belgium
+    ports:
+      - ${PORT:-8191}:8191
+      - 9696:9696
+    restart: unless-stopped
+
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
@@ -9,6 +27,17 @@ services:
       - TZ=Etc/UTC
     volumes:
       - {{ dockge_base_folder }}prowlarr/data:/config
-    ports:
-      - 9696:9696
     restart: unless-stopped
+    network_mode: "service:gluetun"
+
+  flaresolverr:
+    # DockerHub mirror flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr1
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Europe/London
+    restart: unless-stopped
+    network_mode: "service:gluetun"
