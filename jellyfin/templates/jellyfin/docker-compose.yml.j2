@@ -1,7 +1,7 @@
 ---
 services:
   jellyfin:
-    image: jellyfin/jellyfin:${JELLYFIN_VERSION}
+    image: jellyfin/jellyfin:{{ version_jellyfin }}
     container_name: jellyfin
     restart: unless-stopped
     environment:
