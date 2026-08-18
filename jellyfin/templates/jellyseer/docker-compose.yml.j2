@@ -1,8 +1,9 @@
 ---
 services:
   jellyseerr:
-    image: fallenbagel/jellyseerr:latest
+    image: ghcr.io/seerr-team/seerr:{{ version_jellyseerr }}
     container_name: jellyseerr
+    user: root
     environment:
       - LOG_LEVEL=debug
       - TZ=Europe/Rome
@@ -10,5 +11,5 @@ services:
     ports:
       - 5055:5055
     volumes:
-      - /root/docker/jellyseer/config:/app/config
+      - ./config:/app/config
     restart: unless-stopped

@@ -1,3 +1,4 @@
 ---
 # vars file for jellyfin
 version_jellyfin: 10.11.8
+version_jellyseerr: v3.4.1
