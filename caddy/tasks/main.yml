@@ -112,7 +112,7 @@
   when: go_path_line not in lookup('file', '/etc/profile')
 
 - name: Source /etc/profile to apply PATH changes
-  ansible.builtin.command: source /etc/profile
+  ansible.builtin.shell: source /etc/profile
   args:
     executable: /bin/bash
   when: not go_already_installed
