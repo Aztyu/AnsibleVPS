@@ -10,6 +10,11 @@ services:
     user: cloud
     password: $2a$12$NwHWKoRbsQ7JK3dvl6epleHpc5UTotdJNeuKnN3WKIbU1i4rEyxES
     http: true
+  transmission-gluetun:
+    port: 9092
+    user: cloud
+    password: $2a$12$NwHWKoRbsQ7JK3dvl6epleHpc5UTotdJNeuKnN3WKIbU1i4rEyxES
+    http: true
   photo:
     port: 2283
   jellyfin:

@@ -2,3 +2,5 @@
 # vars file for jellyfin
 version_jellyfin: 10.11.8
 version_jellyseerr: v3.4.1
+vpn_open_port: 64743
+transmission_version: 4.1.3
