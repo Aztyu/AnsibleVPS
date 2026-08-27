@@ -6,3 +6,4 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - {{ dockge_base_folder }}sablier/sablier.yml:/etc/sablier/sablier.yml
     image: sablierapp/sablier:{{ sablier_version }}
+    restart: unless-stopped
