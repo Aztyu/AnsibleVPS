@@ -3,22 +3,22 @@
 
 - name: Create Uptime directory
   ansible.builtin.file:
-    path: "{{ uptime_docker_folder }}"
+    path: "{{ dockge_base_folder }}uptime-kuma"
     state: directory
     mode: '0755'
 
-- name: Copy UptimeKuma repo
+- name: Setup UptimeKuma docker compose
   become: true
-  ansible.builtin.copy:
-    src: uptime-kuma/docker-compose.yml
-    dest: "{{ uptime_docker_folder }}/docker-compose.yml"
+  ansible.builtin.template:
+    src: uptime-kuma/docker-compose.yml.j2
+    dest: "{{ dockge_base_folder }}uptime-kuma/docker-compose.yml"
     owner: root
     group: root
     mode: '0644'
 
 - name: Create and start UptimeKuma via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{ uptime_docker_folder }}"
+    project_src: "{{ dockge_base_folder }}uptime-kuma"
 
 - name: Create Dockge compose directory
   ansible.builtin.file:
