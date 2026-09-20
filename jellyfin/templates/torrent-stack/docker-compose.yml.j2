@@ -27,6 +27,9 @@ services:
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
+    labels:
+      kuma.prowlarr.http.name: "Prowlarr"
+      kuma.prowlarr.http.url: "https://prowlarr.corentinbeal.fr"
     environment:
       - TZ=Etc/UTC
     volumes:
@@ -49,6 +52,11 @@ services:
   transmission:
     image: lscr.io/linuxserver/transmission:{{ transmission_version }}
     container_name: transmission
+    labels:
+      kuma.transmission-gluetun.http.name: "Transmission (Gluetun)"
+      kuma.transmission-gluetun.http.url: "http://transmission-gluetun.corentinbeal.fr"
+      # Caddy protects this endpoint with basic auth, so a 401 means the full chain is up
+      kuma.transmission-gluetun.http.accepted_statuscodes: '["200-399","401"]'
     environment:
       - PUID=1000
       - PGID=1000

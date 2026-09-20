@@ -20,6 +20,58 @@
   community.docker.docker_compose_v2:
     project_src: "{{ dockge_base_folder }}uptime-kuma"
 
+- name: Create AutoKuma directory
+  ansible.builtin.file:
+    path: "{{ dockge_base_folder }}autokuma"
+    state: directory
+    mode: '0755'
+
+- name: Create AutoKuma data directory
+  ansible.builtin.file:
+    path: "{{ dockge_base_folder }}autokuma/data"
+    state: directory
+    mode: '0755'
+
+- name: Create AutoKuma static monitors directory
+  ansible.builtin.file:
+    path: "{{ dockge_base_folder }}autokuma/monitors"
+    state: directory
+    mode: '0755'
+
+- name: Copy AutoKuma static monitors
+  become: true
+  ansible.builtin.copy:
+    src: autokuma/monitors/
+    dest: "{{ dockge_base_folder }}autokuma/monitors/"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Setup AutoKuma app static monitors
+  become: true
+  ansible.builtin.template:
+    src: "autokuma/monitors/{{ item }}.json.j2"
+    dest: "{{ dockge_base_folder }}autokuma/monitors/{{ item }}.json"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - sonarr
+    - radarr
+
+- name: Setup AutoKuma docker compose
+  become: true
+  ansible.builtin.template:
+    src: autokuma/docker-compose.yml.j2
+    dest: "{{ dockge_base_folder }}autokuma/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create and start AutoKuma via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ dockge_base_folder }}autokuma"
+
 - name: Create Dockge compose directory
   ansible.builtin.file:
     path: "{{ dockge_docker_folder }}"

@@ -1,0 +1,22 @@
+---
+services:
+  autokuma:
+    image: 'ghcr.io/bigboot/autokuma:{{ autokuma_version }}'
+    container_name: autokuma
+    restart: unless-stopped
+    # Host network so AutoKuma can reach Uptime Kuma on localhost:3001
+    network_mode: host
+    environment:
+      AUTOKUMA__KUMA__URL: http://localhost:3001
+      AUTOKUMA__KUMA__USERNAME: '{{ uptime_kuma_username }}'
+      AUTOKUMA__KUMA__PASSWORD: '{{ uptime_kuma_password }}'
+      # Ignore Docker Compose temporary containers created during stack updates
+      AUTOKUMA__DOCKER__EXCLUDE_CONTAINER_PATTERNS: '^[a-f0-9]{12}_.*_'
+      # Static monitors (non-container targets such as systemd services)
+      AUTOKUMA__STATIC_MONITORS: /static-monitors
+      # Safest default: keep monitors if a container disappears
+      AUTOKUMA__ON_DELETE: keep
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
+      - './data:/data'
+      - './monitors:/static-monitors:ro'
