@@ -1,5 +1,8 @@
 services:
   sablier:
+    labels:
+      kuma.sablier.http.name: "Sablier"
+      kuma.sablier.http.url: "http://localhost:10000/health"
     ports:
       - 10000:10000
     volumes:

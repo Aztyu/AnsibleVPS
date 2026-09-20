@@ -1,0 +1,6 @@
+{
+  "type": "http",
+  "name": "Backrest",
+  "url": "https://backup.corentinbeal.fr",
+  "parent_name": "systemd"
+}

@@ -3,6 +3,9 @@ services:
   jellyfin:
     image: jellyfin/jellyfin:{{ version_jellyfin }}
     container_name: jellyfin
+    labels:
+      kuma.jellyfin.http.name: "Jellyfin"
+      kuma.jellyfin.http.url: "https://jellyfin.corentinbeal.fr"
     restart: unless-stopped
     environment:
       - PUID=102

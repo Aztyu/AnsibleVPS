@@ -2,6 +2,11 @@ services:
   fileshare:
     image: psitrax/psitransfer
     container_name: fileshare
+    labels:
+      kuma.fileshare.http.name: "Fileshare"
+      kuma.fileshare.http.url: "https://fileshare.corentinbeal.fr"
+      # Caddy protects this endpoint with basic auth, so a 401 means the full chain is up
+      kuma.fileshare.http.accepted_statuscodes: '["200-399","401"]'
     environment:
       PSITRANSFER_ADMIN_PASS: {{ fileshare_password }}
     ports:
