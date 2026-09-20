@@ -103,10 +103,10 @@
     state: directory
     mode: '0755'
 
-- name: Copy Mealie repo
+- name: Setup Mealie docker compose
   become: true
-  ansible.builtin.copy:
-    src: mealie/docker-compose.yml
+  ansible.builtin.template:
+    src: mealie/docker-compose.yml.j2
     dest: "{{ dockge_base_folder }}mealie/docker-compose.yml"
     owner: root
     group: root
