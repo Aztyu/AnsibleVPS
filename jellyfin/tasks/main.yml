@@ -131,11 +131,20 @@
     daemon_reload: true
     name: radarr
 
-- name: Copy yamstack repo
+- name: Setup Yamstack .env
   become: true
   ansible.builtin.copy:
-    src: yamstack/
-    dest: "{{ dockge_base_folder }}yamstack/"
+    src: yamstack/.env
+    dest: "{{ dockge_base_folder }}yamstack/.env"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Setup Yamstack docker compose
+  become: true
+  ansible.builtin.template:
+    src: yamstack/docker-compose.yml.j2
+    dest: "{{ dockge_base_folder }}yamstack/docker-compose.yml"
     owner: root
     group: root
     mode: '0644'

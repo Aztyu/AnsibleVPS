@@ -1,6 +1,6 @@
 services:
   vikunja:
-    image: vikunja/vikunja
+    image: vikunja/vikunja:{{ vikunja_version }}
     labels:
       kuma.vikunja.http.name: "Vikunja"
       kuma.vikunja.http.url: "https://todo.corentinbeal.fr"
