@@ -30,7 +30,7 @@ services:
     environment:
       - TZ=Etc/UTC
     volumes:
-      - {{ dockge_base_folder }}prowlarr/data:/config
+      - {{ dockge_base_folder }}torrent-stack/data:/config
     restart: unless-stopped
     network_mode: "service:gluetun"
 
