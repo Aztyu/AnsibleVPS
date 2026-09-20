@@ -13,6 +13,26 @@
       bookworm stable"
     state: present
 
+# Use an existing mount (e.g. /mnt/HC_Volume_106913471) as the rclone VFS cache dir
+- name: Use existing mount as rclone VFS cache dir if present
+  ansible.builtin.set_fact:
+    rclone_vfs_cache_dir: "{{ rclone_vfs_cache_path | regex_replace('/+$', '') }}"
+  when: >
+    ansible_facts['mounts'] | selectattr('mount', 'equalto',
+    rclone_vfs_cache_path | regex_replace('/+$', '')) | list | length > 0
+
+- name: Fallback to default rclone VFS cache dir
+  ansible.builtin.set_fact:
+    rclone_vfs_cache_dir: "{{ rclone_vfs_cache_dir_default }}"
+  when: rclone_vfs_cache_dir is not defined
+
+- name: Create rclone VFS cache directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ rclone_vfs_cache_dir }}"
+    state: directory
+    mode: '0755'
+
 - name: Install required packages
   ansible.builtin.apt:
     update_cache: true
@@ -52,10 +72,10 @@
     state: link
 
 # ajout mount
-- name: Copy mount file
+- name: Template mount file
   become: true
-  ansible.builtin.copy:
-    src: mnt-storagebox.mount
+  ansible.builtin.template:
+    src: mnt-storagebox.mount.j2
     dest: "{{ mount_file_path }}mnt-storagebox.mount"
     owner: root
     group: root
