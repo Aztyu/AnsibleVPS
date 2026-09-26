@@ -2,4 +2,15 @@
 # vars file for immich
 rclone_conf_path: /root/.config/rclone/
 mount_file_path: /etc/systemd/system/
-immich_version: "v3.1.0"
+# If this mount exists on the server, it is used as the rclone VFS cache dir
+# (e.g. Hetzner block volume on this VPS)
+rclone_vfs_cache_path: /mnt/HC_Volume_106913471
+# Used when the mount above is absent
+rclone_vfs_cache_dir_default: /var/rclone
+# Max size of the rclone VFS cache (e.g. 10G, 40G, 100G, ...)
+# Doit rester nettement en dessous de la taille du disque qui heberge le cache
+rclone_vfs_cache_max_size: 20G
+# Age maximum des objets conserves dans le cache avant eviction
+rclone_vfs_cache_max_age: 3h
+# Frequence de verification/eviction du cache
+rclone_vfs_cache_poll_interval: 30s

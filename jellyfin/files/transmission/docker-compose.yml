@@ -1,10 +1,15 @@
 ---
 services:
   transmission-openvpn:
+    labels:
+      kuma.transmission-openvpn.http.name: "Transmission (OpenVPN)"
+      kuma.transmission-openvpn.http.url: "http://transmission.corentinbeal.fr"
+      # Caddy protects this endpoint with basic auth, so a 401 means the full chain is up
+      kuma.transmission-openvpn.http.accepted_statuscodes: '["200-399","401"]'
     cap_add:
       - NET_ADMIN
     volumes:
-      - /mnt/storagebox/media/incomplete:/data/incomplete # On passe par VFS donc on peut se servir du mnt
+      - /mnt/storagebox/media/incomplete:/incomplete # Pour réduire la taille du cache on mets les incomplete sur le disque
       - /mnt/storagebox/media/:/data/completed
       - /opt/stacks/transmission/config/:/config
       - /opt/stacks/transmission/openvpn/:/etc/openvpn/custom/

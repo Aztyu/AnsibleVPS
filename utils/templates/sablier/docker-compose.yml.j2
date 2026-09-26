@@ -1,8 +1,12 @@
 services:
   sablier:
+    labels:
+      kuma.sablier.http.name: "Sablier"
+      kuma.sablier.http.url: "http://localhost:10000/health"
     ports:
       - 10000:10000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - {{ dockge_base_folder }}sablier/sablier.yml:/etc/sablier/sablier.yml
     image: sablierapp/sablier:{{ sablier_version }}
+    restart: unless-stopped

@@ -1,6 +1,9 @@
 services:
   vikunja:
-    image: vikunja/vikunja
+    image: vikunja/vikunja:{{ vikunja_version }}
+    labels:
+      kuma.vikunja.http.name: "Vikunja"
+      kuma.vikunja.http.url: "https://todo.corentinbeal.fr"
     environment:
       VIKUNJA_SERVICE_JWTSECRET: {{ vikunja_secret }}
       VIKUNJA_SERVICE_PUBLICURL: https://todo.corentinbeal.fr/

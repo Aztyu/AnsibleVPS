@@ -2,7 +2,10 @@
 services:
   yamtrack:
     container_name: yamtrack
-    image: ghcr.io/fuzzygrim/yamtrack
+    image: ghcr.io/fuzzygrim/yamtrack:{{ yamtrack_version }}
+    labels:
+      kuma.yamtrack.http.name: "Yamtrack"
+      kuma.yamtrack.http.url: "https://track.corentinbeal.fr"
     restart: unless-stopped
     env_file:
       - .env

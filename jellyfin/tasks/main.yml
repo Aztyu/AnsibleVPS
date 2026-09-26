@@ -37,11 +37,11 @@
     state: directory
     mode: '0755'
 
-- name: Copy Jellyfin docker-compose file
+- name: Setup Jellyfin docker compose
   become: true
-  ansible.builtin.copy:
-    src: jellyfin/
-    dest: "{{ dockge_base_folder }}jellyfin/"
+  ansible.builtin.template:
+    src: jellyfin/docker-compose.yml.j2
+    dest: "{{ dockge_base_folder }}jellyfin/docker-compose.yml"
     owner: root
     group: root
     mode: '0644'
@@ -50,18 +50,18 @@
   community.docker.docker_compose_v2:
     project_src: "{{ dockge_base_folder }}jellyfin/"
 
-- name: Copy jellyseer repo
+- name: Setup jellyseer docker compose
   become: true
-  ansible.builtin.copy:
-    src: jellyseer
-    dest: "{{ dockge_base_folder }}"
+  ansible.builtin.template:
+    src: jellyseer/docker-compose.yml.j2
+    dest: "{{ dockge_base_folder }}jellyseer/docker-compose.yml"
     owner: root
     group: root
     mode: '0644'
 
 - name: Create and start jellyseer via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{ dockge_base_folder }}jellyseer"
+    project_src: "{{ dockge_base_folder }}jellyseer/"
 
 - name: Download Sonarr
   ansible.builtin.get_url:
@@ -131,11 +131,20 @@
     daemon_reload: true
     name: radarr
 
-- name: Copy yamstack repo
+- name: Setup Yamstack .env
   become: true
   ansible.builtin.copy:
-    src: yamstack/
-    dest: "{{ dockge_base_folder }}yamstack/"
+    src: yamstack/.env
+    dest: "{{ dockge_base_folder }}yamstack/.env"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Setup Yamstack docker compose
+  become: true
+  ansible.builtin.template:
+    src: yamstack/docker-compose.yml.j2
+    dest: "{{ dockge_base_folder }}yamstack/docker-compose.yml"
     owner: root
     group: root
     mode: '0644'
@@ -144,34 +153,21 @@
   community.docker.docker_compose_v2:
     project_src: "{{ dockge_base_folder }}yamstack/"
 
-- name: Copy FlareSolverr repo
-  become: true
-  ansible.builtin.copy:
-    src: flaresolverr/
-    dest: "{{ dockge_base_folder }}flaresolverr/"
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Create and start FlareSolverr via docker-compose
-  community.docker.docker_compose_v2:
-    project_src: "{{ dockge_base_folder }}flaresolverr/"
-
-- name: Create Prowlarr data directory
+- name: Create torrent-stack data directory
   ansible.builtin.file:
-    path: "{{ dockge_base_folder }}prowlarr"
+    path: "{{ dockge_base_folder }}torrent-stack"
     state: directory
     mode: '0755'
 
-- name: Setup Prowlarr docker compose
+- name: Setup torrent-stack docker compose
   become: true
   ansible.builtin.template:
-    src: prowlarr/docker-compose.yml.j2
-    dest: "{{ dockge_base_folder }}prowlarr/docker-compose.yml"
+    src: torrent-stack/docker-compose.yml.j2
+    dest: "{{ dockge_base_folder }}torrent-stack/docker-compose.yml"
     owner: root
     group: root
     mode: '0644'
 
-- name: Create and start Prowlarr via docker-compose
+- name: Create and start torrent-stack via docker-compose
   community.docker.docker_compose_v2:
-    project_src: "{{ dockge_base_folder }}prowlarr/"
+    project_src: "{{ dockge_base_folder }}torrent-stack/"

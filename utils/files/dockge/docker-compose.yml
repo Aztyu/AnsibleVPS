@@ -2,6 +2,9 @@
 services:
   dockge:
     image: louislam/dockge:1
+    labels:
+      kuma.dockge.http.name: "Dockge"
+      kuma.dockge.http.url: "https://dockge.corentinbeal.fr"
     restart: unless-stopped
     ports:
       # Host Port : Container Port

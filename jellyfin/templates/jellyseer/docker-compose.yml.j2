@@ -1,0 +1,18 @@
+---
+services:
+  jellyseerr:
+    image: ghcr.io/seerr-team/seerr:{{ version_jellyseerr }}
+    container_name: jellyseerr
+    labels:
+      kuma.jellyseerr.http.name: "Jellyseerr"
+      kuma.jellyseerr.http.url: "https://catalog.corentinbeal.fr"
+    user: root
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Europe/Rome
+      - PORT=5055   # optional
+    ports:
+      - 5055:5055
+    volumes:
+      - ./config:/app/config
+    restart: unless-stopped
