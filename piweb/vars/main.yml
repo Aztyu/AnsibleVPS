@@ -1,0 +1,9 @@
+---
+# vars file for piweb
+piweb_user: piweb
+piweb_home: /home/piweb
+piweb_npm_prefix: "{{ piweb_home }}/.npm-global"
+piweb_arch: arm64
+piweb_node_dir: /usr/local/nodejs
+piweb_node_tarball: "node-v{{ node_version }}-linux-{{ piweb_arch }}.tar.gz"
+piweb_node_url: "https://nodejs.org/dist/v{{ node_version }}/{{ piweb_node_tarball }}"

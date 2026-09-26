@@ -42,6 +42,7 @@
 
   roles:
     - {role: 'backup', tags: 'backup'}
+    - {role: 'piweb', tags: 'piweb'}
     - {role: 'caddy', tags: 'caddy'}
     - {role: 'immich', tags: 'immich'}
     - {role: 'jellyfin', tags: 'jellyfin'}

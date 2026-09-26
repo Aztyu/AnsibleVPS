@@ -58,6 +58,10 @@ services:
       names: adventurelog-backend adventurelog-db adventurelog-frontend
   adventure-server:
     port: 8016
+  piweb:
+    port: 8504
+    user: piweb
+    password: $2a$12$qT8plO8KCBwGR1j0wcXYfuSMD2wM4uzkP9.O/PX30KNIIm0Pq5wb6
 
 go_arch: "arm64"
 
