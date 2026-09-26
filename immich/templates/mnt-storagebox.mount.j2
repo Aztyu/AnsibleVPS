@@ -7,4 +7,4 @@ Type=rclone
 What=storagebox:
 Where=/mnt/storagebox
 # Sans le mode writes Immich ne démare pas "type d'écriture non supportée"
-Options=rw,_netdev,allow_other,args2env,vfs-cache-mode=full,vfs-cache-max-size={{ rclone_vfs_cache_max_size }},config=/root/.config/rclone/rclone.conf,cache-dir={{ rclone_vfs_cache_dir }},log-file=/var/log/rclone.log
+Options=rw,_netdev,allow_other,args2env,vfs-cache-mode=full,vfs-cache-max-size={{ rclone_vfs_cache_max_size }},vfs-cache-max-age={{ rclone_vfs_cache_max_age }},vfs-cache-poll-interval={{ rclone_vfs_cache_poll_interval }},config=/root/.config/rclone/rclone.conf,cache-dir={{ rclone_vfs_cache_dir }},log-file=/var/log/rclone.log
