@@ -32,13 +32,13 @@ Do not reformat files just to satisfy a linter rule that the repo intentionally 
 # Everything
 ansible-playbook intro_playbook.yml --vault-password-file=password.sh
 
-# A single role / tag (tags: backup, caddy, immich, jellyfin, cleanup, utils)
+# A single role / tag (tags: backup, piweb, caddy, immich, jellyfin, cleanup, utils)
 ansible-playbook intro_playbook.yml --vault-password-file=password.sh --tags=utils
 ```
 
 - `password.sh` is **gitignored** and passed via `--vault-password-file`.
 - Roles are listed in `intro_playbook.yml`; each has a tag matching its name.
-- Order matters: `backup` → `caddy` → `immich` → `jellyfin` → `cleanup` → `utils`.
+- Order matters: `backup` → `piweb` → `caddy` → `immich` → `jellyfin` → `cleanup` → `utils`.
 - `intro_playbook.yml` `pre_tasks` handle OS setup (media group, cloud user, SSH
   password auth off, apt upgrade).
 
@@ -53,7 +53,7 @@ ansible.cfg            inventory=./hosts
 requirements.yml       community.docker
 group_vars/all/vars    variable → vault_* mappings (auto-loaded)
 group_vars/all/vault   encrypted secrets (committed)
-<role>/                backup, caddy, immich, jellyfin, cleanup, utils
+<role>/                backup, caddy, immich, jellyfin, cleanup, utils, piweb
   defaults/main.yml    low-priority defaults
   vars/main.yml        role constants
   tasks/main.yml       tasks

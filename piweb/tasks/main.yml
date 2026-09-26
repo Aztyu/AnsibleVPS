@@ -1,0 +1,144 @@
+---
+# tasks file for piweb
+
+# Création d'un utilisateur dédié, volontairement hors du groupe sudo :
+# PI WEB et les sessions Pi qu'il héberge tournent sans privilèges root.
+- name: Créer l'utilisateur piweb sans droits sudo
+  ansible.builtin.user:
+    name: "{{ piweb_user }}"
+    comment: Utilisateur dédié PI WEB
+    shell: /bin/bash
+    create_home: true
+    state: present
+  register: piweb_user_info
+
+# Nécessaire pour que les services utilisateur systemd survivent au logout et au reboot.
+- name: Activer linger pour l'utilisateur piweb
+  ansible.builtin.command: loginctl enable-linger {{ piweb_user }}
+  args:
+    creates: /var/lib/systemd/linger/{{ piweb_user }}
+
+# On garde un shell de login (requis par les services PI WEB en -lc) mais on
+# interdit toute connexion SSH : DenyUsers n'affecte ni sudo ni systemd --user.
+- name: Interdire la connexion SSH pour l'utilisateur piweb
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    line: "DenyUsers {{ piweb_user }}"
+    insertafter: EOF
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Recharger sshd
+
+# node-pty (terminal de PI WEB) n'a pas de binaire précompilé pour arm64 :
+# node-gyp doit le compiler depuis les sources, ce qui requiert make/g++/python3.
+- name: Installer les outils de compilation requis par node-pty
+  ansible.builtin.apt:
+    update_cache: true
+    name:
+      - make
+      - g++
+      - python3
+    state: present
+
+- name: Vérifier la version de Node.js installée
+  ansible.builtin.command: "{{ piweb_node_dir }}/bin/node --version"
+  register: piweb_node_check
+  changed_when: false
+  failed_when: false
+
+- name: Définir si Node.js est déjà installé à la bonne version
+  ansible.builtin.set_fact:
+    piweb_node_installed: "{{ (piweb_node_check.stdout is defined and ('v' + node_version) in piweb_node_check.stdout) | bool }}"
+
+- name: Télécharger Node.js {{ node_version }}
+  ansible.builtin.get_url:
+    url: "{{ piweb_node_url }}"
+    dest: "/tmp/{{ piweb_node_tarball }}"
+    mode: '0755'
+  when: not piweb_node_installed
+
+- name: Retirer l'ancienne installation de Node.js
+  ansible.builtin.file:
+    path: "{{ piweb_node_dir }}"
+    state: absent
+  when: not piweb_node_installed
+
+- name: Extraire Node.js
+  ansible.builtin.unarchive:
+    src: "/tmp/{{ piweb_node_tarball }}"
+    dest: /usr/local
+    remote_src: true
+  when: not piweb_node_installed
+
+- name: Renommer le dossier Node.js
+  ansible.builtin.command: "mv /usr/local/node-v{{ node_version }}-linux-{{ piweb_arch }} {{ piweb_node_dir }}"
+  when: not piweb_node_installed
+  changed_when: true
+
+# Les services PI WEB tournent via un shell de login (-lc) : le PATH doit être
+# dans ~/.profile, pas dans un fichier réservé aux shells interactifs.
+- name: Ajouter Node.js et le préfixe npm au PATH de piweb
+  ansible.builtin.lineinfile:
+    path: "{{ piweb_home }}/.profile"
+    line: "export PATH=$HOME/.npm-global/bin:{{ piweb_node_dir }}/bin:$PATH"
+    insertafter: EOF
+    owner: "{{ piweb_user }}"
+    group: "{{ piweb_user }}"
+    mode: '0644'
+
+- name: Configurer le préfixe npm de piweb
+  become: true
+  become_user: "{{ piweb_user }}"
+  ansible.builtin.command: "npm config set prefix {{ piweb_npm_prefix }}"
+  environment:
+    HOME: "{{ piweb_home }}"
+    PATH: "{{ piweb_node_dir }}/bin:/usr/local/bin:/usr/bin:/bin"
+  changed_when: false
+
+# Install-or-update : npm ne touche à rien si la version est déjà à jour.
+- name: Installer ou mettre à jour Pi Coding Agent
+  become: true
+  become_user: "{{ piweb_user }}"
+  ansible.builtin.command: npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+  environment:
+    HOME: "{{ piweb_home }}"
+    PATH: "{{ piweb_npm_prefix }}/bin:{{ piweb_node_dir }}/bin:/usr/local/bin:/usr/bin:/bin"
+  register: piweb_pi_install
+  changed_when: "'up to date' not in (piweb_pi_install.stdout + piweb_pi_install.stderr)"
+
+- name: Installer ou mettre à jour PI WEB
+  become: true
+  become_user: "{{ piweb_user }}"
+  ansible.builtin.command: npm install -g @jmfederico/pi-web --allow-scripts=node-pty
+  environment:
+    HOME: "{{ piweb_home }}"
+    PATH: "{{ piweb_npm_prefix }}/bin:{{ piweb_node_dir }}/bin:/usr/local/bin:/usr/bin:/bin"
+  register: piweb_web_install
+  changed_when: "'up to date' not in (piweb_web_install.stdout + piweb_web_install.stderr)"
+
+# npm n'applique pas toujours le bit exécutable sur la cible des liens de bin
+# (typiquement après une installation interrompue) : on le garantit explicitement.
+- name: S'assurer que les binaires PI WEB et Pi sont exécutables
+  become: true
+  become_user: "{{ piweb_user }}"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    mode: '0755'
+    follow: true
+  loop:
+    - "{{ piweb_npm_prefix }}/bin/pi"
+    - "{{ piweb_npm_prefix }}/bin/pi-web"
+    - "{{ piweb_npm_prefix }}/bin/pi-web-server"
+    - "{{ piweb_npm_prefix }}/bin/pi-web-sessiond"
+
+# pi-web install est idempotent (préflight validé avant toute modification) :
+# on le relance à chaque exécution du tag pour installer ou mettre à jour les services.
+- name: Installer ou mettre à jour les services utilisateur PI WEB
+  become: true
+  become_user: "{{ piweb_user }}"
+  ansible.builtin.shell: bash -lc 'pi-web install'
+  args:
+    executable: /bin/bash
+  environment:
+    HOME: "{{ piweb_home }}"
+    XDG_RUNTIME_DIR: "/run/user/{{ piweb_user_info.uid }}"
+  changed_when: false
