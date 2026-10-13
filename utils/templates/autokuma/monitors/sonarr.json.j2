@@ -1,9 +1,9 @@
 {
-  "type": "keyword",
+  "type": "json-query",
   "name": "Sonarr",
   "url": "https://series.corentinbeal.fr/api/v3/health",
   "headers": "{\"X-Api-Key\": \"{{ sonarr_api_key }}\"}",
-  "keyword": "message",
-  "invert_keyword": true,
+  "jsonPath": "$count($filter($, function($v) { $v.type = 'error' }))",
+  "expectedValue": "0",
   "parent_name": "systemd"
 }
