@@ -4,7 +4,8 @@ Description=AutoMount for /mnt/storagebox
 
 [Automount]
 Where=/mnt/storagebox
-TimeoutIdleSec=60
+# 0 = ne jamais demonter automatiquement (evite "Device or resource busy" tout en gardant l'automount comme fallback)
+TimeoutIdleSec=0
 
 [Install]
 WantedBy=multi-user.target

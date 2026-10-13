@@ -1,2 +1,9 @@
 ---
-# handlers file for caddy
+# handlers file for immich
+
+# Redemarre l'automount pour appliquer le nouveau reglage (ex: TimeoutIdleSec)
+- name: Redemarrer l'automount
+  ansible.builtin.systemd_service:
+    name: mnt-storagebox.automount
+    state: restarted
+    daemon_reload: true
