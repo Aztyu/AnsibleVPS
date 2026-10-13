@@ -48,6 +48,7 @@ services:
       - TZ=Europe/London
     restart: unless-stopped
     network_mode: "service:gluetun"
+    cpus: 0.5
 
   transmission:
     image: lscr.io/linuxserver/transmission:{{ transmission_version }}
