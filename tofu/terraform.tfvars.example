@@ -1,0 +1,18 @@
+# Exemple — copier en terraform.tfvars (gitignoré).
+# Les secrets ne sont PAS ici : ils viennent de Bitwarden Secrets Manager
+# (voir secrets.tf) ; seul BW_ACCESS_TOKEN passe par l'environnement.
+
+# ID de l'organisation Bitwarden : Organization -> Settings (ou l'URL de l'admin)
+bitwarden_organization_id = ""
+
+# Surcharges optionnelles
+# sonarr_url = "https://series.corentinbeal.fr"
+
+# Self-hosted Bitwarden uniquement (Vaultwarden ne supporte pas Secrets Manager)
+# bitwarden_api_url      = "https://vault.example.com/api"
+# bitwarden_identity_url = "https://vault.example.com/identity"
+
+# Bitwarden cloud EU (si votre compte est sur vault.bitwarden.eu) —
+# sinon `invalid_client` : le jeton n'existe pas sur le serveur US.
+# bitwarden_api_url      = "https://api.bitwarden.eu"
+# bitwarden_identity_url = "https://identity.bitwarden.eu"

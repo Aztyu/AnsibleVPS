@@ -1,1 +1,14 @@
 password.sh
+
+# OpenTofu (plan docs/plans/opentofu-arr-config.md)
+# Exports d'inventaire + tfvars/state locaux : contiennent des secrets
+tofu/inventory/
+tofu/terraform.tfvars
+tofu/backend.tfvars
+tofu/.terraform/
+tofu/*.tfstate*
+tofu/*.tfstate.*.backup
+tofu/.terraform.lock.hcl
+tofu/crash.log
+# Cache local du provider Bitwarden (peut contenir un identifiant/session)
+tofu/.bw-provider-state
