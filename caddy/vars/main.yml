@@ -2,6 +2,11 @@
 # vars file for caddy
 caddypath: /etc/caddy/Caddyfile
 
+# Caddy est un binaire custom : le plugin Sablier n'est pas inclus dans le paquet apt
+caddy_bin: /usr/bin/caddy
+caddy_build_path: /tmp/caddy-{{ caddy_version }}
+caddy_sablier_module: github.com/sablierapp/sablier-caddy-plugin
+
 domain_name: corentinbeal.fr
 
 services:

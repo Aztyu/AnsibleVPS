@@ -19,7 +19,12 @@ wsl -e bash -lc 'cd /mnt/c/Users/cocob/Documents/Dev/AnsibleVPS && ansible-lint'
 ```
 
 - A clean run ends with `Passed: 0 failure(s), 0 warning(s)` at the `production` profile.
+- **It is slow (several minutes). Don't run it for every edit** — use
+  `ansible-playbook intro_playbook.yml --syntax-check --vault-password-file=password.sh`
+  while iterating, and leave the full lint to CI (or one final run).
 - Warnings about the `.ansible` cache directory not being writable are harmless.
+- There is a permanent `WARNING Found incompatible custom yamllint configuration`
+  banner: harmless, the repo accepts that custom `.yamllint`.
 - Config: `.ansible-lint` (excludes `.github`, `vault/`, `group_vars/all/vault`),
   `.yamllint` (line length 190, `comments.min-spaces-from-content: 1`).
 - CI runs ansible-lint on every push: `.github/workflows/ansible-lint.yml`.
@@ -121,6 +126,37 @@ Pattern for a new stack (see `utils/tasks/main.yml`):
 Caddy is installed via apt and runs as a systemd service; its config is
 `/etc/caddy/Caddyfile` rendered from `caddy/templates/Caddyfile.j2`.
 
+**The binary is a custom xcaddy build**, because the `sablier` directive lives in
+`github.com/sablierapp/sablier-caddy-plugin` and is *not* in the stock apt package.
+The role therefore:
+
+1. installs the apt package (only for the systemd unit, `caddy` user and `/etc/caddy`),
+2. installs `xcaddy` + Go (`go_version` in `main_vars.yml`),
+3. rebuilds `/usr/bin/caddy` with `xcaddy build {{ caddy_version }} --with
+   <sablier module>@{{ caddy_sablier_plugin_version }}` **only if** `caddy version`
+   does not match `caddy_version` or the plugin is missing from
+   `caddy list-modules --packages`,
+4. holds the apt package (`dpkg_selections: hold`) so `upgrade: dist` can't overwrite
+   the custom binary,
+5. runs `caddy validate` before reloading, so a bad Caddyfile can't take every site down.
+
+Versions live in `main_vars.yml` (`caddy_version`, `caddy_sablier_plugin_version`).
+**Never** pin the apt package with `caddy=<version>`: that reinstalls the stock binary
+and Caddy then refuses to parse the `sablier` directive.
+
+Caddy-specific gotchas:
+
+- `caddy list-modules` alone prints **module IDs** (`http.handlers.sablier`), *not* the
+  Go package path. Use `caddy list-modules --packages` to see
+  `github.com/sablierapp/sablier-caddy-plugin`.
+- Never point `xcaddy build --output` at the running `/usr/bin/caddy` (`ETXTBSY`).
+  The role builds to `/tmp`, asserts the plugin is present, then installs the file with
+  `ansible.builtin.copy` (atomic rename).
+- Use `ansible_facts['env']['PATH']`, not `ansible_env.PATH` (ansible-core deprecation,
+  removed in 2.24).
+- A build takes a few minutes on the ARM VPS; it is skipped unless the version or the
+  plugin actually changed.
+
 `caddy/vars/main.yml` holds the source of truth — a `services` map keyed by subdomain:
 
 ```yaml
@@ -149,8 +185,8 @@ hashes.
 
 On-demand services are started through **Sablier** (`sablierapp/sablier`, port 10000),
 configured over the Docker socket (`utils/templates/sablier/`). Wire it per service
-with the `autostop` block above; Caddy injects the `sablier` directive. Sablier exposes
-a liveness endpoint at `GET /health`.
+with the `autostop` block above; Caddy injects the `sablier` directive — which requires
+the custom xcaddy build described above. Sablier exposes a liveness endpoint at `GET /health`.
 
 ## Monitoring — Uptime Kuma + AutoKuma
 

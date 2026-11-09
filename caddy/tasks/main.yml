@@ -80,6 +80,8 @@
   changed_when: false
   failed_when: false
 
+# La parenthèse de go_already_installed est obligatoire : sans elle Jinja évalue
+# 'go version go' + (go_version in stdout), ce qui est toujours faux et retélécharge Go à chaque run.
 - name: Set fact if Go is already installed and correct
   ansible.builtin.set_fact:
     go_already_installed: "{{ go_version_check.stdout is defined and ('go version go' + go_version) in go_version_check.stdout }}"
@@ -118,6 +120,79 @@
   when: not go_already_installed
   changed_when: false
 
+- name: Vérifier la version de Caddy installée
+  ansible.builtin.command: "{{ caddy_bin }} version"
+  register: caddy_version_check
+  changed_when: false
+  failed_when: false
+
+# --packages est nécessaire : sans ce flag, list-modules n'affiche que l'ID des modules
+# (ex. http.handlers.sablier) et pas le chemin du package Go (github.com/sablierapp/...).
+- name: Vérifier les modules Caddy installés
+  ansible.builtin.command: "{{ caddy_bin }} list-modules --packages"
+  register: caddy_modules_check
+  changed_when: false
+  failed_when: false
+
+- name: Déterminer si Caddy doit être recompilé avec le plugin Sablier
+  ansible.builtin.set_fact:
+    caddy_build_needed: >-
+      {{ caddy_version_check.rc | default(1) != 0
+         or caddy_version not in caddy_version_check.stdout
+         or caddy_sablier_module not in caddy_modules_check.stdout }}
+
+- name: Compiler Caddy avec le plugin Sablier via xcaddy
+  ansible.builtin.command: >-
+    xcaddy build {{ caddy_version }}
+    --with {{ caddy_sablier_module }}@{{ caddy_sablier_plugin_version }}
+    --output {{ caddy_build_path }}
+  args:
+    chdir: /tmp
+  environment:
+    PATH: "/usr/local/go/bin:{{ ansible_facts['env']['PATH'] }}"
+  when: caddy_build_needed
+  changed_when: true
+
+# On vérifie le binaire compilé avant de l'installer : un Caddy sans le plugin
+# Sablier ne démarrerait pas (directive inconnue) et tomberait tout le reverse proxy.
+- name: Vérifier que le binaire compilé contient le plugin Sablier
+  ansible.builtin.command: "{{ caddy_build_path }} list-modules --packages"
+  register: caddy_build_modules
+  changed_when: false
+  when: caddy_build_needed
+
+- name: Valider le binaire compilé
+  ansible.builtin.assert:
+    that:
+      - caddy_sablier_module in caddy_build_modules.stdout
+    fail_msg: "Le binaire compilé ne contient pas {{ caddy_sablier_module }}"
+    quiet: true
+  when: caddy_build_needed
+
+# copy (pas command/install) car il remplace le fichier par un rename atomique :
+# écrire directement dans un binaire en cours d'exécution échoue en ETXTBSY.
+- name: Installer le binaire Caddy compilé
+  ansible.builtin.copy:
+    src: "{{ caddy_build_path }}"
+    dest: "{{ caddy_bin }}"
+    remote_src: true
+    owner: root
+    group: root
+    mode: '0755'
+  when: caddy_build_needed
+  notify: Redémarrer caddy
+
+- name: Supprimer le binaire Caddy temporaire
+  ansible.builtin.file:
+    path: "{{ caddy_build_path }}"
+    state: absent
+  when: caddy_build_needed
+
+- name: Épingler le paquet caddy pour ne pas écraser le binaire custom
+  ansible.builtin.dpkg_selections:
+    name: caddy
+    selection: hold
+
 - name: Copy Caddyfile template
   become: true
   ansible.builtin.template:
@@ -126,11 +201,11 @@
     owner: root
     group: root
     mode: '0644'
+  notify: Recharger caddy
 
-- name: Reload Caddy
-  ansible.builtin.systemd_service:
-    state: reloaded
-    name: caddy
+- name: Valider la configuration Caddy avant rechargement
+  ansible.builtin.command: "{{ caddy_bin }} validate --config {{ caddypath }} --adapter caddyfile"
+  changed_when: false
 
 - name: Include task for each service
   ansible.builtin.include_tasks: setup-iptables.yml

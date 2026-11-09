@@ -1,0 +1,16 @@
+---
+# vars file for updates
+
+updates_unattended_conf: /etc/apt/apt.conf.d/50unattended-upgrades
+updates_periodic_conf: /etc/apt/apt.conf.d/20auto-upgrades
+updates_needrestart_conf: /etc/needrestart/conf.d/99-ansiblevps.conf
+
+updates_state_dir: /var/lib/security-updates
+updates_last_run_file: "{{ updates_state_dir }}/last-run.txt"
+updates_report_script: /usr/local/bin/security-updates-report.sh
+
+updates_gotify_token_dir: /etc/ansiblevps
+updates_gotify_token_file: "{{ updates_gotify_token_dir }}/gotify-app-token"
+
+updates_report_service: security-updates-report.service
+updates_report_timer: security-updates-report.timer
