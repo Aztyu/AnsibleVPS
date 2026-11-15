@@ -18,7 +18,7 @@ caddy_sablier_plugin_version: "v1.0.2"
 go_version: "1.25.6"
 
 # immich
-immich_version: v3.3.6
+immich_version: v3.4.1
 
 # jellyfin
 transmission_version: 4.1.3
