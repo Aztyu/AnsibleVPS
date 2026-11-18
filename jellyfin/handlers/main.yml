@@ -1,7 +1,2 @@
 ---
 # handlers file for jellyfin
-
-- name: Restart transmission-gluetun
-  community.docker.docker_container:
-    name: transmission
-    state: restarted

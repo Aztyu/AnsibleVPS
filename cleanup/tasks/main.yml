@@ -39,3 +39,26 @@
   ansible.builtin.file:
     path: /home/cloud/Jackett
     state: absent
+
+# Transmission OpenVPN (haugene/transmission-openvpn) : remplacé par la stack
+# torrent-stack (gluetun + transmission-gluetun)
+- name: Check if legacy transmission stack directory exists
+  ansible.builtin.stat:
+    path: "{{ dockge_base_folder }}transmission"
+  register: legacy_transmission_stack
+
+- name: Stop and remove legacy transmission stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ dockge_base_folder }}transmission"
+    state: absent
+  when: legacy_transmission_stack.stat.exists
+
+- name: Remove legacy transmission-openvpn container
+  community.docker.docker_container:
+    name: transmission-openvpn
+    state: absent
+
+- name: Remove legacy transmission stack directory
+  ansible.builtin.file:
+    path: "{{ dockge_base_folder }}transmission"
+    state: absent

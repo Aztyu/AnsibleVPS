@@ -7,30 +7,6 @@
     state: directory
     mode: '0755'
 
-- name: Copy OpenVPN conf
-  become: true
-  ansible.builtin.copy:
-    src: AirVPN_Germany_UDP-443-Entry3.ovpn
-    dest: "{{ dockge_base_folder }}transmission/openvpn/"
-    owner: root
-    group: root
-    mode: '0644'
-
-# Copy docker files
-- name: Copy transmission repo
-  become: true
-  ansible.builtin.copy:
-    src: transmission
-    dest: "{{ dockge_base_folder }}"
-    owner: root
-    group: root
-    mode: '0644'
-
-# Start
-- name: Create and start transmission via docker-compose
-  community.docker.docker_compose_v2:
-    project_src: "{{ dockge_base_folder }}transmission"
-
 - name: Create Jellyfin directory
   ansible.builtin.file:
     path: "{{ dockge_base_folder }}jellyfin"
@@ -159,26 +135,61 @@
     state: directory
     mode: '0755'
 
-- name: Create transmission-gluetun directories
+- name: Create transmission-gluetun config directory
+  become: true
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ dockge_base_folder }}transmission-gluetun/config"
     state: directory
-    owner: '1000'
-    group: '1000'
+    owner: root
+    group: root
     mode: '0755'
-  loop:
-    - "{{ dockge_base_folder }}transmission-gluetun/config/transmission-home"
-    - "{{ dockge_base_folder }}transmission-gluetun/incomplete"
+
+# Le conteneur écrit avec PUID/PGID 1000 et l'image LSIO ne chown que /config :
+# le dossier doit rester accessible en écriture pour l'utilisateur non-root.
+- name: Create transmission-gluetun incomplete directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ dockge_base_folder }}transmission-gluetun/incomplete"
+    state: directory
+    owner: root
+    group: root
+    mode: '0777'
+
+# Le démon tourne avec `-g /config` : sa configuration réelle est /config/settings.json
+# (et non /config/transmission-home/settings.json, qui n'est plus lu).
+# Transmission réécrit ce fichier à chaque arrêt : on stoppe le conteneur avant
+# d'écrire pour qu'il relise notre version au démarrage (relancé par le compose up).
+- name: Compute desired transmission-gluetun settings checksum
+  ansible.builtin.set_fact:
+    transmission_settings_checksum: "{{ lookup('file', role_path ~ '/files/transmission-gluetun/config/settings.json') | hash('sha1') }}"
+
+- name: Check current transmission-gluetun settings
+  ansible.builtin.stat:
+    path: "{{ dockge_base_folder }}transmission-gluetun/config/settings.json"
+  register: transmission_settings
+
+- name: Get transmission container state
+  community.docker.docker_container_info:
+    name: transmission
+  register: transmission_container
+
+- name: Stop transmission-gluetun before applying settings
+  community.docker.docker_container:
+    name: transmission
+    state: stopped
+  when:
+    - transmission_container.exists
+    - transmission_container.container.State.Running
+    - not transmission_settings.stat.exists or transmission_settings.stat.checksum != transmission_settings_checksum
 
 - name: Setup transmission-gluetun settings
   become: true
   ansible.builtin.copy:
-    src: transmission-gluetun/config/transmission-home/settings.json
-    dest: "{{ dockge_base_folder }}transmission-gluetun/config/transmission-home/settings.json"
+    src: transmission-gluetun/config/settings.json
+    dest: "{{ dockge_base_folder }}transmission-gluetun/config/settings.json"
     owner: '1000'
     group: '1000'
     mode: '0644'
-  notify: Restart transmission-gluetun
 
 - name: Setup torrent-stack docker compose
   become: true
