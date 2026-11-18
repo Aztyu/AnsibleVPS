@@ -21,7 +21,7 @@ go_version: "1.25.6"
 immich_version: v3.4.1
 
 # jellyfin
-transmission_version: 4.1.3
+transmission_version: 4.1.4
 version_jellyfin: 12.4
 version_jellyseerr: v3.5.1
 yamtrack_version: 0.26.3

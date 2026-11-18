@@ -64,8 +64,7 @@ services:
       - TZ=Europe/Paris
     volumes:
       - {{ dockge_base_folder }}transmission-gluetun/config:/config
-      - /mnt/storagebox/media/:/downloads
-      - /mnt/storagebox/media/incomplete-gluetun:/downloads/incomplete
+      - /mnt/storagebox/media/:/data/completed
       - /mnt/storagebox/media/watch-gluetun:/watch
     restart: unless-stopped
     network_mode: "service:gluetun"
