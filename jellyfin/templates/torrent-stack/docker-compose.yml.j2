@@ -64,7 +64,9 @@ services:
       - TZ=Europe/Paris
     volumes:
       - {{ dockge_base_folder }}transmission-gluetun/config:/config
+      # Incomplete sur le disque local du VPS (évite d'écrire des fichiers partiels sur le montage rclone)
+      - {{ dockge_base_folder }}transmission-gluetun/incomplete:/data/incomplete
+      # Complétés : déplacés vers le storagebox
       - /mnt/storagebox/media/:/data/completed
-      - /mnt/storagebox/media/watch-gluetun:/watch
     restart: unless-stopped
     network_mode: "service:gluetun"

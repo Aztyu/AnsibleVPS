@@ -159,6 +159,27 @@
     state: directory
     mode: '0755'
 
+- name: Create transmission-gluetun directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: '1000'
+    group: '1000'
+    mode: '0755'
+  loop:
+    - "{{ dockge_base_folder }}transmission-gluetun/config/transmission-home"
+    - "{{ dockge_base_folder }}transmission-gluetun/incomplete"
+
+- name: Setup transmission-gluetun settings
+  become: true
+  ansible.builtin.copy:
+    src: transmission-gluetun/config/transmission-home/settings.json
+    dest: "{{ dockge_base_folder }}transmission-gluetun/config/transmission-home/settings.json"
+    owner: '1000'
+    group: '1000'
+    mode: '0644'
+  notify: Restart transmission-gluetun
+
 - name: Setup torrent-stack docker compose
   become: true
   ansible.builtin.template:

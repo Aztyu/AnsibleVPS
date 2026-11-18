@@ -77,7 +77,7 @@
     "umask": "002",
     "upload-slots-per-torrent": 14,
     "utp-enabled": false,
-    "watch-dir": "/data/watch",
-    "watch-dir-enabled": true,
+    "watch-dir": "/watch",
+    "watch-dir-enabled": false,
     "watch-dir-force-generic": false
 }
