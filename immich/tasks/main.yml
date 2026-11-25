@@ -62,49 +62,62 @@
     state: directory
     mode: '0755'
 
-# Lien symbolique pour mount ln -s /usr/bin/rclone /sbin/mount.rclone
-- name: Create symbolic link for rclone
+# Lien /sbin/mount.rclone : il ne servait qu'a l'ancienne unite .mount
+- name: Supprime l'ancien lien mount.rclone
   ansible.builtin.file:
-    src: /usr/bin/rclone
-    dest: /sbin/mount.rclone
-    owner: root
-    group: media
-    state: link
+    path: /sbin/mount.rclone
+    state: absent
 
-# ajout mount
-- name: Template mount file
+# Etat des anciennes unites (.mount + .automount) remplacees par un service
+- name: Verifie la presence des anciennes unites mount/automount
+  ansible.builtin.stat:
+    path: "{{ mount_file_path }}mnt-storagebox.{{ item }}"
+  loop:
+    - mount
+    - automount
+  register: anciennes_unites_mount
+
+# Un .mount ne peut pas se relancer seul : on arrete les anciennes unites avant
+# de les supprimer, sinon rclone garderait le point de montage occupe
+- name: Arrete et desactive les anciennes unites mount/automount
+  ansible.builtin.systemd_service:
+    name: "mnt-storagebox.{{ item.item }}"
+    state: stopped
+    enabled: false
+  loop: "{{ anciennes_unites_mount.results }}"
+  loop_control:
+    label: "mnt-storagebox.{{ item.item }}"
+  when: item.stat.exists
+
+- name: Supprime les anciennes unites mount/automount
+  ansible.builtin.file:
+    path: "{{ mount_file_path }}mnt-storagebox.{{ item.item }}"
+    state: absent
+  loop: "{{ anciennes_unites_mount.results }}"
+  loop_control:
+    label: "mnt-storagebox.{{ item.item }}"
+  when: item.stat.exists
+
+- name: Template rclone mount service
   become: true
   ansible.builtin.template:
-    src: mnt-storagebox.mount.j2
-    dest: "{{ mount_file_path }}mnt-storagebox.mount"
+    src: mnt-storagebox.service.j2
+    dest: "{{ mount_file_path }}mnt-storagebox.service"
     owner: root
     group: root
     mode: '0644'
-
-# ajout mount
-- name: Copy mount file
-  become: true
-  ansible.builtin.copy:
-    src: mnt-storagebox.automount
-    dest: "{{ mount_file_path }}mnt-storagebox.automount"
-    owner: root
-    group: root
-    mode: '0644'
-  notify: Redemarrer l'automount
+  notify: Redemarrer le montage rclone
 
 - name: Reload to systemd
   ansible.builtin.systemd_service:
     daemon_reload: true
 
-- name: Enable automount
+# Restart=always dans l'unite : systemd relance rclone si le SFTP tombe
+- name: Active et demarre le montage rclone
   ansible.builtin.systemd_service:
+    name: mnt-storagebox.service
     enabled: true
-    name: mnt-storagebox.automount
-
-- name: Start mount service
-  ansible.builtin.systemd_service:
     state: started
-    name: mnt-storagebox.mount
 
 # Copy docker files
 - name: Copy immich repo

@@ -1,0 +1,69 @@
+# /etc/systemd/system/mnt-storagebox.service
+#
+# Remplace l'ancien couple mnt-storagebox.mount + mnt-storagebox.automount.
+# Un .mount ne peut pas se relancer seul (Restart= y est interdit) : apres une
+# coupure SFTP il restait "active", les applications continuaient d'ecrire sur le
+# disque local et le conteneur suivant ne pouvait plus demarrer.
+# Ici systemd relance rclone indefiniment (Restart=always) et le service n'est
+# considere demarre qu'une fois le montage reellement lisible (ExecStartPost).
+#
+# Le .automount n'est pas repris : il utilisait TimeoutIdleSec=0 (jamais demonte),
+# donc il n'apportait rien a part un etat systemd de plus a maintenir.
+[Unit]
+Description=rclone mount /mnt/storagebox (Storage Box SFTP)
+Documentation=https://rclone.org/commands/rclone_mount/
+After=network-online.target
+Wants=network-online.target
+# Le montage doit etre pret avant que Docker ne demarre les conteneurs
+# (immich, jellyfin, fileshare, vikunja ecrivent directement dedans)
+Before=docker.service
+# 0 = ne jamais abandonner : on veut une boucle de remontage infinie
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+SyslogIdentifier=rclone-storagebox
+TimeoutStartSec=180
+TimeoutStopSec=30
+Restart=always
+RestartSec=15
+
+# --- Detection de la coupure (au lieu d'attendre indefiniment, defaut 5m) ---
+Environment=RCLONE_TIMEOUT=1m
+Environment=RCLONE_CONTIMEOUT=30s
+# --- Reessais au lieu de renvoyer une erreur aux applications ---
+Environment=RCLONE_LOW_LEVEL_RETRIES=20
+Environment=RCLONE_RETRIES=10
+Environment=RCLONE_RETRIES_SLEEP=5s
+# Recycle les sessions SSH : une connexion a moitie morte n'est pas reutilisee
+Environment=RCLONE_SFTP_IDLE_TIMEOUT=30s
+# Attributs / listings perimes invalides rapidement => coupure vue vite
+Environment=RCLONE_ATTR_TIMEOUT=1s
+Environment=RCLONE_DIR_CACHE_TIME=1m
+# --- Cache VFS : les acces continuent pendant une coupure courte ---
+Environment=RCLONE_VFS_CACHE_MODE=full
+Environment=RCLONE_VFS_CACHE_MAX_SIZE={{ rclone_vfs_cache_max_size }}
+Environment=RCLONE_VFS_CACHE_MAX_AGE={{ rclone_vfs_cache_max_age }}
+Environment=RCLONE_VFS_CACHE_POLL_INTERVAL={{ rclone_vfs_cache_poll_interval }}
+# Remontee des ecritures rapide : les erreurs remontent au lieu de s'accumuler
+Environment=RCLONE_VFS_WRITE_BACK=5s
+# Pas de stats toutes les minutes dans les logs
+Environment=RCLONE_STATS=0
+
+# Demonte un eventuel montage FUSE fantome (rclone tue sans demontage, FUSE
+# restant en "Transport endpoint is not connected") avant de remonter
+ExecStartPre=-/bin/sh -c 'fusermount -uz /mnt/storagebox 2>/dev/null || true'
+
+# --allow-other : sans ca les conteneurs ne voient pas les fichiers
+# --allow-non-empty : le repertoire peut contenir des ecritures locales faites
+#                     pendant une coupure, sinon le remontage echoue
+ExecStart=/usr/bin/rclone mount storagebox: /mnt/storagebox --config={{ rclone_conf_path }}rclone.conf --cache-dir={{ rclone_vfs_cache_dir }} --allow-other --allow-non-empty --log-file=/var/log/rclone.log --log-level=INFO
+
+# Le service n'est "started" que si le montage repond vraiment
+ExecStartPost=/bin/sh -c 'i=0; until mountpoint -q /mnt/storagebox && timeout 30 stat /mnt/storagebox >/dev/null 2>&1; do i=$((i+1)); if [ $i -ge 4 ]; then echo "montage /mnt/storagebox non pret" >&2; exit 1; fi; sleep 5; done'
+
+# Nettoyage en sortie : le montage ne doit jamais rester en placeholder local
+ExecStopPost=-/bin/sh -c 'fusermount -uz /mnt/storagebox 2>/dev/null || true'
+
+[Install]
+WantedBy=multi-user.target
