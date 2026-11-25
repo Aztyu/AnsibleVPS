@@ -70,6 +70,26 @@
       'Press enter to continue':
         - ''
 
+- name: Create Sonarr systemd drop-in directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/systemd/system/sonarr.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+# L'unite sonarr.service est generee par l'install.sh officiel, donc non versionnee :
+# on ajoute l'ordonnancement (network-online / mnt-storagebox) via un drop-in.
+- name: Setup Sonarr systemd override
+  become: true
+  ansible.builtin.copy:
+    src: Sonarr/override.conf
+    dest: /etc/systemd/system/sonarr.service.d/override.conf
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Restart Sonarr to apply update
   ansible.builtin.systemd_service:
     state: restarted
@@ -101,9 +121,13 @@
     group: media
     mode: '0644'
 
-- name: Start Radarr
+# enabled obligatoire : contrairement a Sonarr (installe par son install.sh qui fait
+# 'systemctl enable --now'), l'unite radarr est copiee a la main et ne serait donc
+# jamais lancee au reboot du VPS.
+- name: Activer et demarrer Radarr au boot
   ansible.builtin.systemd_service:
-    state: restarted
+    state: started
+    enabled: true
     daemon_reload: true
     name: radarr
 

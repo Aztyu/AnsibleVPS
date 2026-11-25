@@ -1,6 +1,9 @@
 [Unit]
 Description=Radarr Daemon
-After=syslog.target network.target
+# network-online : Radarr doit pouvoir joindre les indexers/notifications au demarrage
+# mnt-storagebox : la bibliotheque vit sous /mnt/storagebox (montage rclone)
+After=syslog.target network-online.target mnt-storagebox.service
+Wants=network-online.target
 
 [Service]
 Type=simple
